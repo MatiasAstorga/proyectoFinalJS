@@ -1,3 +1,28 @@
+#header{
+    height: 200px;
+    background: red;
+    display: none;
+}
+
+#main{
+    height: 600px;
+    background: green;
+}
+
+#footer{
+    height: 200px;
+    background: blue;
+    display: none;
+}
+
+#login{
+    max-width: 500px;
+    height: 600px;
+    margin: auto;
+    background: white;
+    padding: 10px;
+}
+
 #pantallaCarga {
     position: fixed;
     display: none;
@@ -21,6 +46,16 @@
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
+}
+
+input[type="text"],.input[type="email"],input[type="password"] {
+    height: 45px;
+    width: 100%;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    -webkit-transition: all 0.1s linear;
+    -moz-transition: all 0.1s linear;
+    transition: all 0.1s linear;
 }
 
 @keyframes spin {
