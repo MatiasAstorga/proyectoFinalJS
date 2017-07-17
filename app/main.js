@@ -97,7 +97,7 @@ class PaginaLogin extends Pagina {
                             <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
                         </div>
                         <div class="form-group text-center">
-                            <input type="checkbox" tabindex="3" name="remember" id="remember">
+                            <input type="checkbox" checked=true tabindex="3" name="remember" id="remember">
                             <label for="remember"> Recordarme </label>
                         </div>
                         <div class="form-group">
@@ -119,11 +119,12 @@ class PaginaLogin extends Pagina {
         if (this.login.verificarLogin()) {
             if (document.getElementById('remember').checked) {
                 setLoginAtLocalStorage(this.login);
-                location.reload();
+                this.mostrarPantallaDeCarga(true);
+                window.setTimeout(() => location.reload(), 1000);  //TODO: mandar evento login OK a main APP
             } else {
                 alert("marcar Recordarme para continuar")
+                //TODO: mandar evento login OK a main APP
             }
-            //TODO: mandar evento login OK
         } else {
             alert("Login Incorrecto!");
         }
