@@ -27,9 +27,10 @@ class Pagina {
     constructor(url, header, footer, navController) {
         this.navController = navController;
         this.url = url;
-        this.pintarEstructuraBase();
         this.header = header;
         this.footer = footer;
+
+        this.pintarEstructuraBase();
     }
 
     pintarEstructuraBase() {
@@ -121,6 +122,7 @@ class PaginaLogin extends Pagina {
                         </div>
                     </div>
                 </div>
+                <div class="alert" id="loginIncorrecto">Login Incorrecto!!!</div>
             </div>`;
 
         crearElemento("button", "Login", "divButtonLogin", "form-control btn btn-primary", "loginButton").addEventListener("click", () => this.login.logearse(this.navController));
@@ -170,7 +172,10 @@ class Login {
                 mostrarPantallaDeCarga(false);
             }, 1000);
         } else {
-            alert("Login Incorrecto!");
+            var elem = document.getElementById('loginIncorrecto');
+            setTimeout(() => {elem.style.opacity = "100"; elem.style.display = "block"}, 500);
+            setTimeout(() => elem.style.opacity = "0", 3500);
+            setTimeout(() => elem.style.display = "none", 4000);
         }
     }
 }
