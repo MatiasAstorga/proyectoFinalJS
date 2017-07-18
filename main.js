@@ -3,7 +3,6 @@ const WARN = x => console.warn(x);
 const ERROR = x => console.error(x);
 const TO_TOP = () => window.setTimeout(() => document.getElementById('top').scrollIntoView(), 500);
 const TO_BOTTOM = () => window.setTimeout(() => document.getElementById('bottom').scrollIntoView(), 500);
-const NEW_URL = (datos, titulo, nuevaURL) => window.history.pushState(datos, titulo, nuevaURL);
 
 var crearElemento = (tipo, texto, nodoPadre, clase, id) => {
     var element = document.createElement(tipo);
@@ -20,26 +19,18 @@ var crearElemento = (tipo, texto, nodoPadre, clase, id) => {
     return element;
 }
 
-var getLoginFromLocalStorage = () => {
-    let loginAsString = localStorage.getItem("loginProyFinal");
-    return JSON.parse(loginAsString);
-}
-
-var setLoginAtLocalStorage = login => {
-    let loginAsString = JSON.stringify(login);
-    localStorage.setItem("loginProyFinal", loginAsString);
-}
-
 var deleteLoginAtLocalStorage = () => {
     localStorage.removeItem("loginProyFinal");
     location.reload();
 }
 
 class Pagina {
-    constructor(header, footer) {
+    constructor(url, header, footer, navController) {
+        this.navController = navController;
+        this.url = url;
         this.pintarEstructuraBase();
-        this.mostrarHeader(header);
-        this.mostrarFooter(footer);
+        this.header = header;
+        this.footer = footer;
     }
 
     pintarEstructuraBase() {
@@ -50,7 +41,6 @@ class Pagina {
                     <div id="header"></div>
                 </header>
                 <div id="main">
-                
                 </div>
                 <footer>
                     <div id="footer"></div>
@@ -60,31 +50,56 @@ class Pagina {
                 </div>
                 <div id="bottom"></div>
             </div>`;
-
-        crearElemento("button", "Cerrar sesión", "main", "form-control btn btn-primary", "loginButton").addEventListener("click", () => deleteLoginAtLocalStorage());
     }
 
-    mostrarHeader(value) {
-        value ? document.getElementById("header").style.display = "block" : document.getElementById("header").style.display = "none";
+    mostrarHeader() {
+        this.header ? document.getElementById("header").style.display = "block" : document.getElementById("header").style.display = "none";
     }
 
-    mostrarFooter(value) {
-        value ? document.getElementById("footer").style.display = "block" : document.getElementById("footer").style.display = "none";
+    mostrarFooter() {
+        this.footer ? document.getElementById("footer").style.display = "block" : document.getElementById("footer").style.display = "none";
     }
 
-    mostrarPantallaDeCarga(value) {
-        value ? document.getElementById("pantallaCarga").style.display = "block" : document.getElementById("pantallaCarga").style.display = "none"
+    pintarUrl(nuevaURL) {
+        window.history.pushState("", "", nuevaURL);
+    }
+
+    pintarOtros() {
+        this.mostrarHeader();
+        this.mostrarFooter();
+        this.pintarUrl(this.url);
+    }
+}
+
+class PaginaHome extends Pagina {
+    constructor(navController) {
+        super("home", true, true, navController);
+    }
+
+    pintarPaginaHTML() {
+        document.getElementById('main').innerHTML = "";
+        crearElemento("button", "Cerrar sesión", "main", "form-control btn btn-primary", "loginButton").addEventListener("click", () => this.deslogearse());
+        crearElemento("button", "Otra pagina", "main", "form-control btn", "otherPageButton").addEventListener("click", () => this.irPagina2());
+        this.pintarOtros();
+    }
+
+    irPagina2() {
+        this.navController.navigateToUrl("pagina2");
+    }
+
+    deslogearse() {
+        localStorage.removeItem("loginProyFinal");
+        this.navController.navigateToUrl("login");
     }
 }
 
 class PaginaLogin extends Pagina {
-    constructor(header, footer) {
-        super(header, footer);
+    constructor(header, footer, navController) {
+        super("login", header, footer, navController);
         this.login = new Login();
-        this.pintarLoginHTML();
     }
 
-    pintarLoginHTML() {
+    pintarPaginaHTML() {
         document.getElementById('main').innerHTML = `
             <div id=login>
                 <h2> Datos de Login </h2>
@@ -109,25 +124,8 @@ class PaginaLogin extends Pagina {
                 </div>
             </div>`;
 
-        crearElemento("button", "Login", "divButtonLogin", "form-control btn btn-primary", "loginButton").addEventListener("click", () => this.logearse());
-    }
-
-    logearse() {
-        let user = document.getElementById('username').value;
-        let pass = document.getElementById('password').value;
-        this.login = new Login(user, pass);
-        if (this.login.verificarLogin()) {
-            if (document.getElementById('remember').checked) {
-                setLoginAtLocalStorage(this.login);
-                this.mostrarPantallaDeCarga(true);
-                window.setTimeout(() => location.reload(), 1000);  //TODO: mandar evento login OK a main APP
-            } else {
-                alert("marcar Recordarme para continuar")
-                //TODO: mandar evento login OK a main APP
-            }
-        } else {
-            alert("Login Incorrecto!");
-        }
+        crearElemento("button", "Login", "divButtonLogin", "form-control btn btn-primary", "loginButton").addEventListener("click", () => this.login.logearse(this.navController));
+        this.pintarOtros();
     }
 }
 
@@ -138,33 +136,110 @@ class Login {
     }
 
     verificarLogin() {
+        if (this.getLoginFromLocalStorage()) {
+            let objeto = this.getLoginFromLocalStorage();
+            this.setParamsDeLoginConObjeto(objeto);
+        }
+
         if (this.user == "1234" && this.pass == "1234") {
             return true;
         } else {
             return false;
         }
     }
+
+    setParamsDeLoginConObjeto(objeto) {
+        this.user = objeto.user;
+        this.pass = objeto.pass;
+    }
+
+    getLoginFromLocalStorage() {
+        let loginAsString = localStorage.getItem("loginProyFinal");
+        return JSON.parse(loginAsString);
+    }
+
+    setLoginAtLocalStorage() {
+        let loginAsString = JSON.stringify(this);
+        localStorage.setItem("loginProyFinal", loginAsString);
+    }
+
+    logearse(navController) {
+        this.user = document.getElementById('username').value;
+        this.pass = document.getElementById('password').value;
+
+        if (this.verificarLogin()) {
+            if (document.getElementById('remember').checked) {
+                this.setLoginAtLocalStorage();
+            }
+
+            navController.mostrarPantallaDeCarga(true);
+            window.setTimeout(() => {
+                navController.navigateToUrl("home");
+                navController.mostrarPantallaDeCarga(false);
+            }, 1000);
+        } else {
+            alert("Login Incorrecto!");
+        }
+    }
+}
+
+class PaginaInterior extends Pagina {
+    constructor() {
+        super();
+    }
+}
+
+class Pagina2 extends Pagina {
+    constructor(navController) {
+        super("pagina2", true, true, navController);
+    }
+
+    pintarPaginaHTML() {
+        document.getElementById('main').innerHTML = "";
+        crearElemento("button", "volver a home", "main", "form-control btn btn-primary", "goToHomeButton").addEventListener("click", () => this.volverACasa());
+        this.pintarOtros();
+    }
+
+    volverACasa() {
+        this.navController.navigateToUrl("home");
+    }
 }
 
 class Main {
     constructor() {
         this.login = new Login();
-        this.home = new Pagina(true, true);
-        this.paginaActual = "";
+        this.navController = new NavigationController();
+        this.agregarPaginasANavController();
     }
 
     iniciarAPP() {
         if (this.login.verificarLogin()) {
-            // PAGINA PRINCIPAL
+            this.navController.navigateToUrl("home");
         } else {
-            this.home = new PaginaLogin(false, false);
+            this.navController.navigateToUrl("login");
         }
     }
 
-    setParamsDeLoginConObjeto(objeto) {
-        this.login = new Login(objeto.user, objeto.pass);
+    agregarPaginasANavController() {
+        this.navController.pages.push(new PaginaLogin(false, false, this.navController));
+        this.navController.pages.push(new PaginaHome(this.navController));
+        this.navController.pages.push(new Pagina2(this.navController));
+        //TODO: agregar resto de paginas
+    }
+}
+
+class NavigationController {
+    constructor() {
+        this.pages = [];
     }
 
+    navigateToUrl(url) {
+        this.pages.find((elem) => elem.url == url).pintarPaginaHTML(this);
+    }
+
+    mostrarPantallaDeCarga(value) {
+        value ? document.getElementById("pantallaCarga").style.display = "block" : document.getElementById("pantallaCarga").style.display = "none"
+    }
 }
 
 class APIClient {
@@ -204,13 +279,7 @@ class XApi {
 var main;
 
 window.onload = () => {
-    if (!getLoginFromLocalStorage()) {
-        main = new Main();
-        main.iniciarAPP();
-    } else {
-        let objeto = getLoginFromLocalStorage();
-        main = new Main();
-        main.setParamsDeLoginConObjeto(objeto);
-        main.iniciarAPP();
-    }
+    main = new Main();
+    main.iniciarAPP();
 };
+
