@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"> 
+	<title>Examen semana 2</title>
+	<script type="text/javascript" src="main.js"></script>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+	<div id="formulario">
+		<h1 id="tienda"></h1>
+		<h2 id="direccion"></h2> <br><br>
+		
+		<div id = "campos">
+			<h3> Añadir producto: </h3> 
+			<label>Nombre: </label><br>
+			<input type="text" id="nombre"><br><br>
+			<label>Url Imagen: </label><br><br>
+			<input type="text" id="url"><br><br>
+			<label>Precio: </label> <br><br>
+			<input type="number" id="precio"><br><br>
+			<label>Descripción: </label><br><br>
+			<textarea id="descripcion" rows="4" cols="40"></textarea><br><br>
+
+			<input class="button" name="submit" type="submit" value="Añadir Producto" onclick="tienda.agregarProducto();">
+		</div>
+		
+	</div>
+
+	<div id="pintarProductos">
+		<p>Ningún producto agregado a la tienda</p>
+	</div>
+
+	<div id="carro">
+		<img class="imgPos" id="carrito" src="carrito.png">
+		<span id="circle"></span>
+	</div>
+
+	<div id="myModal" class="modal">
+  		<div class="modal-content">
+    		<span class="close">&times;</span>
+    		<div id="pintarProductosCarrito">
+    			<p> Ningún producto agregado al carro de compras.</p>
+    		</div>
+  		</div>
+	</div>
+</body>
+</html>

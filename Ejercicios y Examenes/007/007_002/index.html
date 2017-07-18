@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"> 
+	<title>Ejercicio 007_001</title>
+	<script type="text/javascript" src="main.js"></script>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+	<div id="drawCarrera">
+		
+	</div>
+	
+	
+	<button id="empezar" onclick="empezarCarrera();">Empezar carrera</button>
+
+	<div id="formulario">
+		<label>Marca: </label><br>
+		<select id="marca" onchange="getModelos(this.value)">
+			<option value="none">Seleccione una marca</option>
+  			<option value="Ford">Ford</option>
+			<option value="Kia">Kia</option>
+			<option value="Honda">Honda</option>
+			<option value="Nissan">Nissan</option>
+		</select><br><br>
+		<label>Modelo: </label><br>
+		<select id="modelo">
+			
+		</select><br><br>
+		<label>Imagen: </label>
+		<select id="imagen" onchange="drawCar(this.value)">
+			
+		</select><br><br><br>
+		<div id="pintarImagen">
+			<img src="vehiculo1.png">
+		</div><br>
+		<label>Potencia: </label><br>
+		<input type="number" id="velocidadMaxima" min="100" max="200"><br><br>
+
+		<input class="button" name="submit" type="submit" value="Añadir Coche" onclick="crearVehiculo();">
+		<button onclick="crearVehiculoRandom();">Añadir Coche Random</button> <br><br>
+		<label>*Se necesitan al menos 2 coches para iniciar una carrera</label>
+
+	</div>
+	<button id="reiniciar" onclick="location.reload()">Reiniciar</button>
+	<div>
+		<table id="posiciones">
+			
+		</table>
+	</div>
+	<div id="ganador"></div>
+	
+
+</body>
+</html>

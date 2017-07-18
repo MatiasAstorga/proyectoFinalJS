@@ -1,0 +1,242 @@
+body{
+	margin: 0px;
+}
+
+.hidden{
+	display: none;
+}
+
+.menu1{
+	display: inline-block;
+	width: 50%
+}
+
+.menu2{
+	float:right;
+	margin-right: 3px; 
+	font-size: 14px;
+}
+
+.container>ul{
+	padding: 0px;
+}
+
+.menu2>div>ul>li{
+	border-right: 1px solid #dcdcdc;
+}
+
+.menu2>div>ul>li:last-child{
+	border-right: none;
+}
+
+.menuSuperior{
+	text-decoration: none;
+}
+
+#ayudaUrgente{
+	color: #b2353e;
+	margin-right: 5px;
+}
+
+#oficinas, #contactanos{
+	color: #717780;
+	margin-right: 5px;
+}
+
+.listaDeLado{
+	display: inline-block;
+}
+
+.botonesHeader{
+	float: right;
+	margin-right: 20px;
+}
+
+.botonAcceso{
+	color: white;
+    background-image: linear-gradient(rgb(89, 192, 0) 0px, rgb(73, 153, 0) 100%);
+    background-position-x: initial;
+    background-position-y: initial;
+    background-size: initial;
+    background-repeat-x: initial;
+    background-repeat-y: initial;
+    background-attachment: initial;
+    background-origin: initial;
+    background-clip: initial;
+    background-color: initial;
+    width: 160px;
+    height: 35px;
+    vertical-align: bottom;
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: 900;
+}
+
+.botonRegistro{
+	color: white;
+    background-color: #00559d;
+    width: 80px;
+    height: 35px;
+    text-align: center;
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: 900;
+}
+
+.container{
+	margin-left: auto;
+	margin-right: auto;
+	width: 960px
+}
+
+.iconMenu{
+	height: 30px;
+	
+}
+
+.iconMenuAyuda{
+	width: 25px;
+	height: 25px;
+	vertical-align: middle;
+}
+
+.menuPersonasYEmpresas{
+	text-decoration: none;
+    color: #717780;
+    margin-right: 5px;
+    position: relative;
+    bottom: 15px;
+}
+
+.inputSearch{
+	width: 50px;
+	height: 25px;
+    border-radius: 4px;
+ }
+
+ .barraMenu{
+ 	background-image: linear-gradient(rgb(0, 121, 193) 0px, rgb(0, 82, 155) 100%);
+    background-position-x: initial;
+    background-position-y: initial;
+    background-size: initial;
+    background-repeat-x: initial;
+    background-repeat-y: initial;
+    background-attachment: initial;
+    background-origin: initial;
+    background-clip: initial;
+    background-color: initial;	
+    height: 50px;
+    z-index: -1;
+ }
+
+ .barraMenu>.container>ul>li{
+ 	border-right: 1px solid gray;
+ }
+
+ .barraMenu>.container>ul>li:last-child{
+ 	border-right: none;
+ }
+
+
+ .barraMenu>.container>ul>li>a{
+ 	color: white;
+    margin-right: 10px;
+    text-decoration: none;
+    font-size: 16px;
+}	
+
+.barraMenu>.container>ul>li>a:last-child{
+ 	color: #00559d;
+}	
+
+.barraMenu>.container>ul>li>a>img{
+	margin-right: 7px;
+	position: relative;
+	top: 6px;
+    left: 10px;
+    
+}
+
+.main{
+	width: 100%;
+	height: 450px;
+}
+
+.bodyImage{
+	width: 100%;
+}
+
+.textoGigante{
+	font-size: 43px;
+	text-align: center;
+	text-shadow: #000 0.1em 0.1em 0.2em;
+	color: white;
+	font-weight: 900;
+	position: relative;
+	bottom: 470px;
+}
+
+.buttonYoutube{
+	width: auto;
+	height: auto;
+	padding: 10px 30px;
+	font-size: 25px;
+	text-align: center;
+	color: white;
+	background: #0078d2;
+	font-weight: 700;
+	position: relative;
+	bottom: 240px;
+	left: 610px;
+	border-radius: 6px;
+	border-color: #0078d2;
+}
+    
+.buscar{
+	position: relative;
+	right: 20px;
+    vertical-align: middle;  
+}
+
+footer>div>div{
+	border-left: 1px solid #dcdcdc;
+	margin-right: 50px;
+	font-size: 13px;
+	margin-left: 5px;
+    color: #434a58;
+    margin-bottom: 10px;
+   	font-weight: 300;
+}
+
+footer>div>div:first-child{
+	border-left: none;
+}
+
+footer>div>div>ul>li>a{
+	text-decoration: none;
+	color: #717780;
+	font-size: 12px;
+}
+
+footer>div>div>ul{
+	list-style: none;
+	padding-left: 10px;
+	margin: 10px;
+}
+
+.footerMenu1{
+	position: relative;
+    bottom: 12px;
+}
+
+.footerMenu4{
+	position: relative;
+    bottom: 75px;
+}
+
+
+
+
+    

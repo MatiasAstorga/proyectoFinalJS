@@ -1,0 +1,89 @@
+body{
+	background: green;
+}
+
+#vehiculo1, #vehiculo2{
+	position: relative;
+	left: 0px;
+}
+
+.nombres{
+	color: white;
+	font-size: 30px;
+	display: none;
+}
+
+#ganador{
+	display: none;
+	position: absolute;
+    left: 600px;
+    bottom: px;
+    top: 400px;
+    font-size: 40px;
+    color: white;
+}
+
+#reiniciar{
+	display: none;
+	position: absolute;
+    left: 600px;
+    top: 450px;
+    font-size: 40px;
+}
+
+#empezar{
+	position: absolute;
+    left: 600px;
+    top: 400px;
+    font-size: 40px;
+}
+
+.meta {
+  border-left: thick solid #ff0000;
+  font-size: 50px;
+  position: absolute;
+  left: 1100px;
+  top: 10px;
+  z-index: -1;
+  color: green;
+}
+
+.meta2 {
+  border-left: thick solid #ff0000;
+  font-size: 50px;
+  position: absolute;
+  left: 1100px;
+  top: 80px;
+  z-index: -1;
+  color: green;
+}
+
+.meta3 {
+  border-left: thick solid #ff0000;
+  font-size: 50px;
+  position: absolute;
+  left: 1100px;
+  top: 150px;
+  z-index: -1;
+  color: green;
+}
+
+.meta4 {
+  border-left: thick solid #ff0000;
+  font-size: 50px;
+  position: absolute;
+  left: 1100px;
+  top: 220px;
+  z-index: -1;
+  color: green;
+}
+
+.meta5 {
+  border-left: thick solid #ff0000;
+  font-size: 50px;
+  position: absolute;
+  left: 1100px;
+  top: 290px;
+  z-index: -1;
+  color: green;
+}

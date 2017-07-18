@@ -1,0 +1,133 @@
+body{
+  background: LightGreen;
+  margin: 0px;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+tr>th:first-child{
+  width: 110px;
+  height: 55px;
+}
+
+tr>th:last-child{
+  width: 100px;
+  height: 55px;
+}
+
+td, th {
+  border: 1px solid black;
+  text-align: left;
+  padding: 8px;
+}
+
+tr>td {
+  background-color: #ddd;
+  font-weight: 600;
+}
+
+p{
+  font-size: 18px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+hr{
+  border-width: 2px;
+}
+
+
+#carta{
+  width: auto;
+  display: inline-block;
+  background: linear-gradient(to bottom, #ebf1f6 0%,#abd3ee 30%,#89c3eb 62%,#d5ebfb 100%);
+  padding: 10px;
+  border: 2px solid black;
+  position: relative;
+  margin-top: 40px;
+  margin-bottom: 32px;
+}
+
+#mesas{
+  width: auto;
+  background: LightGreen;
+  display: inline-block;
+  position: absolute;
+  text-align: center;
+  padding: 10px;
+  margin-top: 10px;
+  margin-left: 20px;
+  margin-bottom: 100px;
+}
+
+.mesa{
+  display: inline-block;
+  width: auto;
+  height: 180px;
+  border: 1px solid #000;
+  margin: 10px;
+  background: linear-gradient(to right, #f0b7a1 -1%,#f0b7a1 0%,#f0b7a1 0%,#bf6e4e 0%,#bf6e4e 16%,#752201 49%,#8c3310 81%,#bf6e4e 91%);
+  padding: 10px;
+  border-radius: 15%;
+  text-align: left;
+}
+
+.mesaTextos{
+  float: left;
+  color: LightGray;
+}
+
+#acciones{
+  width: 100%;
+  height: 40px;
+  position: fixed;
+  top: 0px;
+  background: LightYellow;
+  z-index: 999;
+}
+
+#recepcion{
+  width: 100%;
+  height: auto;
+  position: fixed;
+  bottom: 0px;
+  background: LightYellow;
+  z-index: 999;
+}
+
+.button{
+  background: SteelBlue;
+  color: white;
+  margin: 8px;
+  display: inline-block;
+}
+
+.inline{
+  display: inline-block;
+  margin: 0px 15px 0px 0px;
+  padding: 2px;
+}
+
+/* Estilos responsivos */
+
+@media (max-width: 1060px) {
+  p{
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  #mesas{
+    position: relative;
+  }
+
+  #carta{
+    display: block;
+    position: relative;
+  }
+}
