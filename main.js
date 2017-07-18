@@ -4,6 +4,10 @@ const ERROR = x => console.error(x);
 const TO_TOP = () => window.setTimeout(() => document.getElementById('top').scrollIntoView(), 500);
 const TO_BOTTOM = () => window.setTimeout(() => document.getElementById('bottom').scrollIntoView(), 500);
 
+var mostrarPantallaDeCarga = (value) => {
+    value ? document.getElementById("pantallaCarga").style.display = "block" : document.getElementById("pantallaCarga").style.display = "none"
+}
+
 var crearElemento = (tipo, texto, nodoPadre, clase, id) => {
     var element = document.createElement(tipo);
     var text = document.createTextNode(texto);
@@ -17,11 +21,6 @@ var crearElemento = (tipo, texto, nodoPadre, clase, id) => {
     if (nodoPadre != undefined)
         document.getElementById(nodoPadre).appendChild(element);
     return element;
-}
-
-var deleteLoginAtLocalStorage = () => {
-    localStorage.removeItem("loginProyFinal");
-    location.reload();
 }
 
 class Pagina {
@@ -137,15 +136,10 @@ class Login {
 
     verificarLogin() {
         if (this.getLoginFromLocalStorage()) {
-            let objeto = this.getLoginFromLocalStorage();
-            this.setParamsDeLoginConObjeto(objeto);
+            this.setParamsDeLoginConObjeto(this.getLoginFromLocalStorage());
         }
 
-        if (this.user == "1234" && this.pass == "1234") {
-            return true;
-        } else {
-            return false;
-        }
+        return (this.user == "1234" && this.pass == "1234");
     }
 
     setParamsDeLoginConObjeto(objeto) {
@@ -154,13 +148,11 @@ class Login {
     }
 
     getLoginFromLocalStorage() {
-        let loginAsString = localStorage.getItem("loginProyFinal");
-        return JSON.parse(loginAsString);
+        return JSON.parse(localStorage.getItem("loginProyFinal"));
     }
 
     setLoginAtLocalStorage() {
-        let loginAsString = JSON.stringify(this);
-        localStorage.setItem("loginProyFinal", loginAsString);
+        localStorage.setItem("loginProyFinal", JSON.stringify(this));
     }
 
     logearse(navController) {
@@ -172,10 +164,10 @@ class Login {
                 this.setLoginAtLocalStorage();
             }
 
-            navController.mostrarPantallaDeCarga(true);
+            mostrarPantallaDeCarga(true);
             window.setTimeout(() => {
                 navController.navigateToUrl("home");
-                navController.mostrarPantallaDeCarga(false);
+                mostrarPantallaDeCarga(false);
             }, 1000);
         } else {
             alert("Login Incorrecto!");
@@ -236,10 +228,6 @@ class NavigationController {
     navigateToUrl(url) {
         this.pages.find((elem) => elem.url == url).pintarPaginaHTML(this);
     }
-
-    mostrarPantallaDeCarga(value) {
-        value ? document.getElementById("pantallaCarga").style.display = "block" : document.getElementById("pantallaCarga").style.display = "none"
-    }
 }
 
 class APIClient {
@@ -282,4 +270,3 @@ window.onload = () => {
     main = new Main();
     main.iniciarAPP();
 };
-
