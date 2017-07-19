@@ -4,6 +4,8 @@ const ERROR = x => console.error(x);
 const TO_TOP = () => window.setTimeout(() => document.getElementById('top').scrollIntoView(), 500);
 const TO_BOTTOM = () => window.setTimeout(() => document.getElementById('bottom').scrollIntoView(), 500);
 
+var generarNumeroAleatorio = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
 var mostrarPantallaDeCarga = (value) => {
     value ? document.getElementById("pantallaCarga").style.display = "block" : document.getElementById("pantallaCarga").style.display = "none"
 }
@@ -50,6 +52,9 @@ class Pagina {
                 </div>
                 <div id="bottom"></div>
             </div>`;
+
+        var header = new Header(this.navController);
+        var footer = new Footer(this.navController);
     }
 
     mostrarHeader() {
@@ -71,20 +76,46 @@ class Pagina {
     }
 }
 
-class PaginaHome extends Pagina {
+class Header {
     constructor(navController) {
-        super("home", true, true, navController);
+        this.pintarPaginaHTML();
+        this.navController = navController;
     }
 
     pintarPaginaHTML() {
-        document.getElementById('main').innerHTML = "";
-        crearElemento("button", "Cerrar sesión", "main", "form-control btn btn-primary", "loginButton").addEventListener("click", () => this.deslogearse());
-        crearElemento("button", "Otra pagina", "main", "form-control btn", "otherPageButton").addEventListener("click", () => this.irPagina2());
-        this.pintarOtros();
+        var data = `
+            <div class="dropdown">
+              <button class="dropbtn">Perfil</button>
+              <div class="dropdown-content" id=perfilUsuarioHeaderAcciones>
+              </div>
+            </div> 
+
+            <div class="dropdown">
+              <button class="dropbtn">Gestión de Productos</button>
+              <div class="dropdown-content" id=gestionProductosHeaderAcciones>
+              </div>
+            </div>            
+        `;
+
+        document.getElementById('header').innerHTML = data;
+
+        crearElemento("a", "Modificar perfil", "perfilUsuarioHeaderAcciones", "", "perfilUsuarioBtn").addEventListener("click", () => this.irAPerfilUsuario());
+        crearElemento("a", "Cerrar sesión", "perfilUsuarioHeaderAcciones", "", "loginButton").addEventListener("click", () => this.deslogearse());
+        crearElemento("a", "Gestión de Comidas", "gestionProductosHeaderAcciones", "", "gestionComidasBtn").addEventListener("click", () => this.irAGestionComidas());
+        crearElemento("a", "Gestión de Bebidas", "gestionProductosHeaderAcciones", "", "gestionBebidasBtn").addEventListener("click", () => this.irAGestionBebidas());
+        
     }
 
-    irPagina2() {
-        this.navController.navigateToUrl("pagina2");
+    irAPerfilUsuario() {
+        this.navController.navigateToUrl("perfilUsuario");
+    }
+
+    irAGestionComidas() {
+        this.navController.navigateToUrl("gestionComidas");
+    }
+
+    irAGestionBebidas() {
+        this.navController.navigateToUrl("gestionBebidas");
     }
 
     deslogearse() {
@@ -93,10 +124,33 @@ class PaginaHome extends Pagina {
     }
 }
 
+class Footer {
+    constructor(navController) {
+        this.pintarPaginaHTML();
+        this.navController = navController;
+    }
+
+    pintarPaginaHTML() {
+        document.getElementById('footer').innerHTML = "";
+    }
+}
+
+class PaginaHome extends Pagina {
+    constructor(navController) {
+        super("home", true, true, navController);
+    }
+
+    pintarPaginaHTML() {
+        document.getElementById('main').innerHTML = "";
+        this.pintarOtros();
+    }
+}
+
 class PaginaLogin extends Pagina {
     constructor(header, footer, navController) {
         super("login", header, footer, navController);
         this.login = new Login();
+        this.loginClient = new LoginClient();
     }
 
     pintarPaginaHTML() {
@@ -114,6 +168,7 @@ class PaginaLogin extends Pagina {
                         <div class="form-group text-center">
                             <input type="checkbox" checked=true tabindex="3" name="remember" id="remember">
                             <label for="remember"> Recordarme </label>
+                            <label class=displayBlock id=labelCrearUsuario></label>
                         </div>
                         <div class="form-group">
                             <div class="row">
@@ -125,28 +180,145 @@ class PaginaLogin extends Pagina {
                 <div class="alert" id="loginIncorrecto">Login Incorrecto!!!</div>
             </div>`;
 
-        crearElemento("button", "Login", "divButtonLogin", "form-control btn btn-primary", "loginButton").addEventListener("click", () => this.login.logearse(this.navController));
+        crearElemento("button", "Login", "divButtonLogin", "form-control btn btn-primary", "loginButton").addEventListener("click", () => this.getLogin());
+        crearElemento("a", "Crear Usuario", "labelCrearUsuario", "pointer", "crearNuevoUsuarioBtn").addEventListener("click", () => this.navController.navigateToUrl("crearUsuario"));
+        this.pintarOtros();
+    }
+
+    getLogin() {
+        this.loginClient.getLogin().then(data => {
+            mostrarPantallaDeCarga(true);
+            window.setTimeout(() => {
+                LOG(data);
+                if (data.status == 404 || data.status == 401) {
+                    var elem = document.getElementById('loginIncorrecto');
+                    setTimeout(() => {
+                        elem.style.opacity = "100";
+                        elem.style.display = "block"
+                    }, 100);
+                    setTimeout(() => elem.style.opacity = "0", 3500);
+                    setTimeout(() => elem.style.display = "none", 4000);
+                } else {
+                    if (document.getElementById('remember').checked) {
+                        this.login.modificarDatosLogin();
+                        this.login.setLoginAtLocalStorage();
+                    }
+                    this.navController.navigateToUrl("home");
+                }
+                mostrarPantallaDeCarga(false);
+            }, 1000)
+        });
+    }
+}
+
+class PaginaCrearUsuario extends Pagina {
+    constructor(header, footer, navController) {
+        super("crearUsuario", header, footer, navController);
+        this.usuarioClient = new UsuarioClient();
+    }
+
+    pintarPaginaHTML() {
+        document.getElementById('main').innerHTML = "";
+        document.getElementById('main').innerHTML = `
+            <div id=login>
+                <h2> Crear Nuevo Usuario</h2>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="form-group">
+                            <label>Nombre: </label>
+                            <input type="text" id="nombreUser" tabindex="1" class="form-control" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>Apellidos: </label>
+                            <input type="text" id="apellidosUser" tabindex="1" class="form-control" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>Email: </label>
+                            <input type="text" id="emailUser" tabindex="1" class="form-control" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>Username: </label>
+                            <input type="text" id="usernameUser" tabindex="1" class="form-control" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>Password: </label>
+                            <input type="text" id="passwordUser" tabindex="1" class="form-control" value="">
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6 col-sm-offset-3" id="divButtonAñadirComida"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6 col-sm-offset-3" id="divButtonCrearUsuario"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id=volverALogin> </div>
+            <div id="snackbar"></div>`;
+
+        crearElemento("button", "Volver", "divButtonCrearUsuario", "form-control btn btn-success btnFixedVolver", "volverALoginBtn").addEventListener("click", () => this.navController.navigateToUrl("login"))
+        crearElemento("button", "Crear Usuario", "divButtonCrearUsuario", "form-control btn btn-primary", "crearNuevoUsuariobtn").addEventListener("click", () => this.usuarioClient.postUsuario().then(data => {
+            LOG(data);
+            mostrarPantallaDeCarga(true);
+            var x = document.getElementById("snackbar");
+            if (data.status == 200) {
+                x.innerHTML = "Usuario Creado Satisfactoriamente";
+            } else {
+                x.innerHTML = "Ha ocurrido un error, intente mas tarde.";
+            }
+            x.className = "show";
+            window.setTimeout(() => {
+                x.className = x.className.replace("show", "");
+                this.navController.navigateToUrl("login");
+                mostrarPantallaDeCarga(false);
+            }, 3000)
+        }));
+        this.pintarOtros();
+    }
+}
+
+class PaginaPerfilUsuario extends Pagina {
+    constructor(navController) {
+        super("perfilUsuario", header, footer, navController);
+        this.usuarioClient = new UsuarioClient();
+    }
+
+    pintarPaginaHTML() {
+        document.getElementById('main').innerHTML = "";
         this.pintarOtros();
     }
 }
 
 class Login {
     constructor(user = null, pass = null) {
-        this.user = user;
-        this.pass = pass;
+        this.username = user;
+        this.password = pass;
+        this.loginClient = new LoginClient();
     }
 
     verificarLogin() {
         if (this.getLoginFromLocalStorage()) {
             this.setParamsDeLoginConObjeto(this.getLoginFromLocalStorage());
-        }
 
-        return (this.user == "1234" && this.pass == "1234");
+            return this.loginClient.getLoginInico(this).then(data => {
+                LOG(data);
+                if (data.status == 404 || data.status == 401)
+                    return false;
+                else
+                    return true;
+            });
+        } else {
+            return false
+        }
     }
 
     setParamsDeLoginConObjeto(objeto) {
-        this.user = objeto.user;
-        this.pass = objeto.pass;
+        this.username = objeto.username;
+        this.password = objeto.password;
     }
 
     getLoginFromLocalStorage() {
@@ -157,48 +329,433 @@ class Login {
         localStorage.setItem("loginProyFinal", JSON.stringify(this));
     }
 
-    logearse(navController) {
-        this.user = document.getElementById('username').value;
-        this.pass = document.getElementById('password').value;
-
-        if (this.verificarLogin()) {
-            if (document.getElementById('remember').checked) {
-                this.setLoginAtLocalStorage();
-            }
-
-            mostrarPantallaDeCarga(true);
-            window.setTimeout(() => {
-                navController.navigateToUrl("home");
-                mostrarPantallaDeCarga(false);
-            }, 1000);
-        } else {
-            var elem = document.getElementById('loginIncorrecto');
-            setTimeout(() => {elem.style.opacity = "100"; elem.style.display = "block"}, 500);
-            setTimeout(() => elem.style.opacity = "0", 3500);
-            setTimeout(() => elem.style.display = "none", 4000);
-        }
+    modificarDatosLogin() {
+        this.username = document.getElementById('username').value;
+        this.password = document.getElementById('password').value;
     }
 }
 
-class PaginaInterior extends Pagina {
-    constructor() {
-        super();
-    }
-}
-
-class Pagina2 extends Pagina {
+class PaginaGestionComidas extends Pagina {
     constructor(navController) {
-        super("pagina2", true, true, navController);
+        super("gestionComidas", true, true, navController);
+        this.comidaClient = new ComidaClient();
+        this.comidas = [];
     }
 
     pintarPaginaHTML() {
-        document.getElementById('main').innerHTML = "";
-        crearElemento("button", "volver a home", "main", "form-control btn btn-primary", "goToHomeButton").addEventListener("click", () => this.volverACasa());
-        this.pintarOtros();
+        let pintarComidasHTML = comidas => {
+            this.comidas = [];
+            var data = `
+            <div class=inLine id=nuevaComidaHeader>
+                <label class=likeTitle> Gestión de Comidas:</label>
+            </div>
+            <div class=table-responsive> 
+            <table class='table centerTable' id=tablaComidas>
+                <thead> 
+                    <tr> 
+                        <td> Nombre </td> 
+                        <td> Tipo </td> 
+                        <td> Existencias </td> 
+                        <td> Calorias </td>
+                        <td> Precio </td>
+                        <td> Acciones </td>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            for (var i = 0; i < comidas.length; i++) {
+                var comida = comidas[i];
+                this.comidas.push(comida);
+                data += `
+                    <tr>
+                        <th> ${comida.nombre}</th>
+                        <th> ${comida.tipo}</th>
+                        <th> ${comida.existencias}</th>
+                        <th> ${comida.calorias}</th>
+                        <th> ${comida.precio}</th>
+                        <th> </th>
+                    </tr>`;
+            }
+            data += "</tbody> </table> </div>";
+            data += `
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="ComidaModal"></div>
+                </div>
+            </div>
+
+        `;
+            document.getElementById("main").innerHTML = data;
+            this.pintarOtros();
+            this.pintarAcciones();
+        }
+        document.getElementById("main").innerHTML = "";
+        mostrarPantallaDeCarga(true);
+        this.comidaClient.getComidas().then(data => window.setTimeout(() => {
+            pintarComidasHTML(data);
+            mostrarPantallaDeCarga(false);
+        }, 1000));
+
     }
 
-    volverACasa() {
-        this.navController.navigateToUrl("home");
+    pintarAcciones() {
+        crearElemento("button", "Nueva Comida", "nuevaComidaHeader", "butonRigth btn-default", "nuevaComidaBtn").addEventListener("click", () => this.añadirComida());
+
+        document.querySelectorAll("tr>th:last-child").forEach((elemento) => {
+            elemento.insertBefore(crearElemento("button", "Borrar", undefined, "btn btn-primary borrarComida", "borrarComida"), null);
+            elemento.insertBefore(crearElemento("button", "Editar", undefined, "btn btn-primary editarComida", "editarComida"), null);
+        })
+
+        document.querySelectorAll(".borrarComida").forEach((elemento, index) => {
+            elemento.addEventListener("click", () => this.eliminarComida(index));
+        })
+
+        document.querySelectorAll(".editarComida").forEach((elemento, index) => {
+            elemento.addEventListener("click", () => this.editarComida(index));
+        })
+    }
+
+    añadirComida() {
+        var modal = document.getElementById("myModal");
+        var spanClose = document.getElementsByClassName("close")[0];
+
+        spanClose.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        document.getElementById('ComidaModal').innerHTML = "";
+        var data = `
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="form-group">
+                        <label>Nombre: </label>
+                        <input type="text" id="nombreComida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo: </label>
+                        <input type="text" id="tipoComida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Existencias: </label>
+                        <input type="text" id="existenciasComida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Calorias: </label>
+                        <input type="text" id="caloriasComida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio: </label>
+                        <input type="text" id="precioComida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-6 col-sm-offset-3" id="divButtonAñadirComida"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        document.getElementById('ComidaModal').innerHTML = data;
+
+        crearElemento("button", "Añadir", "divButtonAñadirComida", "form-control btn btn-primary", "ButtonAñadirComida").addEventListener("click", () => this.comidaClient.postComida().then(data => this.pintarPaginaHTML(data)));
+
+        modal.style.display = "block";
+    }
+
+    eliminarComida(index) {
+        this.comidaClient.deleteComida(this.comidas[index]._id).then(data => this.pintarPaginaHTML(data));
+    }
+
+    editarComida(index) {
+        var modal = document.getElementById("myModal");
+        var spanClose = document.getElementsByClassName("close")[0];
+
+        spanClose.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        document.getElementById('ComidaModal').innerHTML = "";
+        var data = `
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="form-group">
+                        <label>Nombre: </label>
+                        <input type="text" id="editarNombre" tabindex="1" class="form-control" value=${this.comidas[index].nombre}>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo: </label>
+                        <input type="text" id="editarTipo" tabindex="1" class="form-control" value=${this.comidas[index].tipo}>
+                    </div>
+                    <div class="form-group">
+                        <label>Existencias: </label>
+                        <input type="text" id="editarExistencias" tabindex="1" class="form-control" value=${this.comidas[index].existencias}>
+                    </div>
+                    <div class="form-group">
+                        <label>Calorias: </label>
+                        <input type="text" id="editarCalorias" tabindex="1" class="form-control" value=${this.comidas[index].calorias}>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio: </label>
+                        <input type="text" id="editarPrecio" tabindex="1" class="form-control" value=${this.comidas[index].precio}>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-6 col-sm-offset-3" id="divButtonEditarComida"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        document.getElementById('ComidaModal').innerHTML = data;
+        crearElemento("button", "Guardar", "divButtonEditarComida", "form-control btn btn-primary", "ButtonEditarComida").addEventListener("click", () => this.comidaClient.updateComida(this.comidas[index]).then(data => this.pintarPaginaHTML(data)));
+
+        modal.style.display = "block";
+    }
+}
+
+class PaginaGestionBebidas extends Pagina {
+    constructor(navController) {
+        super("gestionBebidas", true, true, navController);
+        this.bebidasClient = new BebidaClient();
+        this.bebidas = [];
+    }
+
+    pintarPaginaHTML() {
+        let pintarBebidasHTML = bebidas => {
+            this.bebidas = [];
+            var data = `
+            <div class=inLine id=nuevaBebidaHeader>
+                <label class=likeTitle> Gestión de Bebidas:</label>
+            </div>
+            <div class=table-responsive> 
+            <table class='table centerTable' id=tablaBebidas>
+                <thead> 
+                    <tr> 
+                        <td> Nombre </td> 
+                        <td> Existencias </td> 
+                        <td> Calorias </td>
+                        <td> Precio </td>
+                        <td> ¿Es Alcoholica? </td>
+                        <td> Grados Alcohol </td>
+                        <td> Acciones </td>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            for (var i = 0; i < bebidas.length; i++) {
+                var bebida = bebidas[i];
+                this.bebidas.push(bebida);
+                var aux = (bebida.esAlcoholica) ? "Si" : "No";
+                data += `
+                    <tr>
+                        <th> ${bebida.nombre}</th>
+                        <th> ${bebida.existencias}</th>
+                        <th> ${bebida.calorias}</th>
+                        <th> ${bebida.precio}</th>
+                        <th> ${aux}</th>
+                        <th> ${bebida.grados}</th>
+                        <th> </th>
+                    </tr>`;
+            }
+            data += "</tbody> </table> </div>";
+            data += `
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="BebidaModal"></div>
+                </div>
+            </div>
+
+        `;
+            document.getElementById("main").innerHTML = data;
+            this.pintarOtros();
+            this.pintarAcciones();
+        }
+        document.getElementById("main").innerHTML = "";
+        mostrarPantallaDeCarga(true);
+        this.bebidasClient.getBebidas().then(data => window.setTimeout(() => {
+            pintarBebidasHTML(data);
+            mostrarPantallaDeCarga(false);
+        }, 1000));
+
+    }
+
+    pintarAcciones() {
+        crearElemento("button", "Nueva Bebida", "nuevaBebidaHeader", "butonRigth btn-default", "nuevaBebidaBtn").addEventListener("click", () => this.añadirBebida());
+
+        document.querySelectorAll("tr>th:last-child").forEach((elemento) => {
+            elemento.insertBefore(crearElemento("button", "Borrar", undefined, "btn btn-primary borrarBebida", "borrarBebida"), null);
+            elemento.insertBefore(crearElemento("button", "Editar", undefined, "btn btn-primary editarBebida", "editarBebida"), null);
+        })
+
+        document.querySelectorAll(".borrarBebida").forEach((elemento, index) => {
+            elemento.addEventListener("click", () => this.eliminarBebida(index));
+        })
+
+        document.querySelectorAll(".editarBebida").forEach((elemento, index) => {
+            elemento.addEventListener("click", () => this.editarBebida(index));
+        })
+    }
+
+    añadirBebida() {
+        var modal = document.getElementById("myModal");
+        var spanClose = document.getElementsByClassName("close")[0];
+
+        spanClose.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        document.getElementById('BebidaModal').innerHTML = "";
+        var data = `
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="form-group">
+                        <label>Nombre: </label>
+                        <input type="text" id="nombreBebida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Existencias: </label>
+                        <input type="text" id="existenciasBebida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Calorias: </label>
+                        <input type="text" id="caloriasBebida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio: </label>
+                        <input type="text" id="precioBebida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>¿Es Alcoholica? : </label>
+                        <select id="esAlcoholicaBebida">
+                            <option value=true>Si</option>
+                            <option value=false>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id=divGradosBebida>
+                        <label>Grados Alcohol: </label>
+                        <input type="text" id="gradosBebida" tabindex="1" class="form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-6 col-sm-offset-3" id="divButtonAñadirBebida"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        document.getElementById('BebidaModal').innerHTML = data;
+
+        var esAlcoholicaID = document.getElementById('esAlcoholicaBebida');
+
+        var checkBebidaAlcoholica = () => {
+            if (esAlcoholicaID.value == "true") {
+                document.getElementById('divGradosBebida').style.display = 'block';
+            } else {
+                document.getElementById('divGradosBebida').style.display = 'none';
+                document.getElementById('gradosBebida').value = 0;
+            }
+        }
+
+        esAlcoholicaID.addEventListener("change", checkBebidaAlcoholica);
+
+        crearElemento("button", "Añadir", "divButtonAñadirBebida", "form-control btn btn-primary", "ButtonAñadirBebida").addEventListener("click", () => this.bebidasClient.postBebida().then(data => this.pintarPaginaHTML(data)));
+
+        modal.style.display = "block";
+    }
+
+    eliminarBebida(index) {
+        this.bebidasClient.deleteBebida(this.bebidas[index]._id).then(data => this.pintarPaginaHTML(data));
+    }
+
+    editarBebida(index) {
+        var modal = document.getElementById("myModal");
+        var spanClose = document.getElementsByClassName("close")[0];
+
+        spanClose.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        document.getElementById('BebidaModal').innerHTML = "";
+        var data = `
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="form-group">
+                        <label>Nombre: </label>
+                        <input type="text" id="editarNombre" tabindex="1" class="form-control" value=${this.bebidas[index].nombre}>
+                    </div>
+                    <div class="form-group">
+                        <label>Existencias: </label>
+                        <input type="text" id="editarExistencias" tabindex="1" class="form-control" value=${this.bebidas[index].existencias}>
+                    </div>
+                    <div class="form-group">
+                        <label>Calorias: </label>
+                        <input type="text" id="editarCalorias" tabindex="1" class="form-control" value=${this.bebidas[index].calorias}>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio: </label>
+                        <input type="text" id="editarPrecio" tabindex="1" class="form-control" value=${this.bebidas[index].precio}>
+                    </div>
+                    <div class="form-group">
+                        <label>¿Es Alcoholica? : </label>
+                        <select id="editarEsAlcoholicaBebida">
+                            <option value=true>Si</option>
+                            <option value=false>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id=divEditarGradosBebida>
+                        <label>Grados Alcohol: </label>
+                        <input type="text" id="editarGradosBebida" tabindex="1" class="form-control" value=${this.bebidas[index].grados}>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-6 col-sm-offset-3" id="divButtonEditarBebida"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        document.getElementById('BebidaModal').innerHTML = data;
+
+        var esAlcoholicaID = document.getElementById('editarEsAlcoholicaBebida')
+        esAlcoholicaID.value = this.bebidas[index].esAlcoholica;
+
+        var checkBebidaAlcoholica = () => {
+            if (esAlcoholicaID.value == "true") {
+                document.getElementById('divEditarGradosBebida').style.display = 'block';
+            } else {
+                document.getElementById('divEditarGradosBebida').style.display = 'none';
+                document.getElementById('editarGradosBebida').value = 0;
+            }
+        }
+
+        checkBebidaAlcoholica();
+
+        esAlcoholicaID.addEventListener("change", checkBebidaAlcoholica);
+
+        crearElemento("button", "Guardar", "divButtonEditarBebida", "form-control btn btn-primary", "ButtonEditarBebida").addEventListener("click", () => this.bebidasClient.updateBebida(this.bebidas[index]).then(data => this.pintarPaginaHTML(data)));
+
+        modal.style.display = "block";
     }
 }
 
@@ -220,8 +777,10 @@ class Main {
     agregarPaginasANavController() {
         this.navController.pages.push(new PaginaLogin(false, false, this.navController));
         this.navController.pages.push(new PaginaHome(this.navController));
-        this.navController.pages.push(new Pagina2(this.navController));
-        //TODO: agregar resto de paginas
+        this.navController.pages.push(new PaginaGestionComidas(this.navController));
+        this.navController.pages.push(new PaginaGestionBebidas(this.navController));
+        this.navController.pages.push(new PaginaCrearUsuario(false, false, this.navController));
+        this.navController.pages.push(new PaginaPerfilUsuario(this.navController));
     }
 }
 
@@ -232,6 +791,234 @@ class NavigationController {
 
     navigateToUrl(url) {
         this.pages.find((elem) => elem.url == url).pintarPaginaHTML(this);
+    }
+}
+
+class Producto {
+    constructor(id, nombre, numeroExistencias, calorias, precio) {
+        this._id = id;
+        this.nombre = nombre;
+        this.existencias = numeroExistencias;
+        this.calorias = calorias;
+        this.precio = precio;
+    }
+}
+
+class Bebida extends Producto {
+    constructor(id, nombre, numeroExistencias, calorias, precio, esAlcoholica, gradosAlcohol) {
+        super(id, nombre, numeroExistencias, calorias, precio);
+        this.esAlcoholica = esAlcoholica;
+        this.grados = gradosAlcohol;
+    }
+}
+
+class Comida extends Producto {
+    constructor(id, nombre, numeroExistencias, calorias, precio, tipo) {
+        super(id, nombre, numeroExistencias, calorias, precio);
+        this.tipo = tipo;
+    }
+}
+
+class Usuario {
+    constructor(email, apellidos, nombre, username, password) {
+        this.email = email;
+        this.apellidos = apellidos;
+        this.nombre = nombre;
+        this.username = username;
+        this.password = password;
+    }
+}
+
+class ComidaClient {
+    constructor() {
+        this.urlBase = 'http://tuabogadodeaccidentes.es/api/comidas';
+        this.apiClient = new APIClient();
+    }
+
+    getComidas() {
+        var url = this.urlBase
+
+        return this.apiClient.get(url).then(
+            (dataEnJson) => {
+                let array = [];
+                for (let i = 0; i < dataEnJson.length; i++) {
+                    let elem = dataEnJson[i];
+                    let comida = new Comida(elem._id, elem.nombre, elem.existencias, elem.calorias, elem.precio, elem.tipo);
+                    array.push(comida);
+                }
+                return array;
+            }
+        );
+    }
+
+    postComida() {
+        var url = this.urlBase;
+
+        var nombre = document.getElementById("nombreComida").value;
+        var tipo = document.getElementById("tipoComida").value;
+        var existencias = document.getElementById("existenciasComida").value;
+        var calorias = document.getElementById("caloriasComida").value;
+        var precio = document.getElementById("precioComida").value;
+
+        var comida = new Comida(0, nombre, existencias, calorias, precio, tipo);
+
+        return this.apiClient.post(url, comida);
+    }
+
+    deleteComida(id) {
+        var url = this.urlBase + "/" + id;
+        return this.apiClient.delete(url);
+    }
+
+    updateComida(comida) {
+        var nombre = document.getElementById("editarNombre").value;
+        var tipo = document.getElementById("editarTipo").value;
+        var existencias = document.getElementById("editarExistencias").value;
+        var calorias = document.getElementById("editarCalorias").value;
+        var precio = document.getElementById("editarPrecio").value;
+
+        var comidaUpdate = new Comida(comida.id, nombre, existencias, calorias, precio, tipo);
+
+        var url = this.urlBase + "/" + comida._id;
+        return this.apiClient.update(url, comidaUpdate);
+    }
+}
+
+class BebidaClient {
+    constructor() {
+        this.urlBase = 'http://tuabogadodeaccidentes.es/api/bebidas';
+        this.apiClient = new APIClient();
+    }
+
+    getBebidas() {
+        var url = this.urlBase
+        return this.apiClient.get(url).then(
+            (dataEnJson) => {
+                let array = [];
+                for (let i = 0; i < dataEnJson.length; i++) {
+                    let elem = dataEnJson[i];
+                    let bebida = new Bebida(elem._id, elem.nombre, elem.existencias, elem.calorias, elem.precio, elem.esAlcoholica, elem.grados);
+                    array.push(bebida);
+                }
+                return array;
+            }
+        );
+    }
+
+    postBebida() {
+        var url = this.urlBase;
+
+        var nombre = document.getElementById("nombreBebida").value;
+        var existencias = document.getElementById("existenciasBebida").value;
+        var calorias = document.getElementById("caloriasBebida").value;
+        var precio = document.getElementById("precioBebida").value;
+        var esAlcoholica = document.getElementById("esAlcoholicaBebida").value;
+        var grados = document.getElementById("gradosBebida").value;
+
+        var bebida = new Bebida(0, nombre, existencias, calorias, precio, esAlcoholica, grados);
+        return this.apiClient.post(url, bebida);
+    }
+
+    deleteBebida(id) {
+        var url = this.urlBase + "/" + id;
+        return this.apiClient.delete(url);
+    }
+
+    updateBebida(bebida) {
+        var nombre = document.getElementById("editarNombre").value;
+        var existencias = document.getElementById("editarExistencias").value;
+        var calorias = document.getElementById("editarCalorias").value;
+        var precio = document.getElementById("editarPrecio").value;
+        var esAlcoholica = document.getElementById("editarEsAlcoholicaBebida").value;
+        var grados = document.getElementById("editarGradosBebida").value;
+
+        var bebidaUpdate = new Bebida(bebida.id, nombre, existencias, calorias, precio, esAlcoholica, grados);
+
+        var url = this.urlBase + "/" + bebida._id;
+        return this.apiClient.update(url, bebidaUpdate);
+    }
+}
+
+class LoginClient {
+    constructor() {
+        this.urlBase = 'http://tuabogadodeaccidentes.es/api';
+        this.apiClient = new APIClient();
+    }
+
+    getLogin() {
+        var url = this.urlBase + "/users/login";
+
+        var user = document.getElementById("username").value;
+        var pass = document.getElementById("password").value;
+
+        var login = new Login(user, pass);
+
+        return this.apiClient.post(url, login);
+    }
+
+    getLoginInico(login) {
+        var url = this.urlBase + "/users/login";
+        return this.apiClient.post(url, login);
+    }
+}
+
+class UsuarioClient {
+    constructor() {
+        this.urlBase = 'http://tuabogadodeaccidentes.es/api/users';
+        this.apiClient = new APIClient();
+    }
+
+    getUsuarios() {
+        var url = this.urlBase
+
+        return this.apiClient.get(url).then(
+            (dataEnJson) => {
+                let array = [];
+                for (let i = 0; i < dataEnJson.length; i++) {
+                    let elem = dataEnJson[i];
+                    let comida = new Comida(elem._id, elem.nombre, elem.existencias, elem.calorias, elem.precio, elem.tipo);
+                    array.push(comida);
+                }
+                return array;
+            }
+        );
+    }
+
+    getDetalleUsuario(id) {
+        var url = this.urlBase + "/" + id;
+        return this.apiClient.get(url);
+    }
+
+    postUsuario() {
+        var url = this.urlBase;
+
+        var nombre = document.getElementById("nombreUser").value;
+        var apellidos = document.getElementById("apellidosUser").value;
+        var email = document.getElementById("emailUser").value;
+        var user = document.getElementById("usernameUser").value;
+        var pass = document.getElementById("passwordUser").value;
+
+        var usuario = new Usuario(email, apellidos, nombre, user, pass);
+
+        return this.apiClient.post(url, usuario);
+    }
+
+    deleteUsuario(id, pass) {
+        var url = this.urlBase + "/" + id;
+        return this.apiClient.deleteConBody(url, pass);
+    }
+
+    updateUsuario(usuario) {
+        var nombre = document.getElementById("editarNombre").value;
+        var apellidos = document.getElementById("editarApellidos").value;
+        var email = document.getElementById("editarEmail").value;
+        var user = document.getElementById("editarUser").value;
+        var pass = document.getElementById("editarPass").value;
+
+        var updateUsuario = new Usuario(email, apellidos, nombre, user, pass);
+
+        var url = this.urlBase + "/" + usuario.id;
+        return this.apiClient.update(url, updateUsuario);
     }
 }
 
@@ -248,24 +1035,56 @@ class APIClient {
 
         return fetch(url, init).then((response) => response.json());
     }
-}
 
-class XApi {
-    constructor() {
-        this.urlBase = '';
-        this.apiClient = new APIClient();
+    post(url, data) {
+        var myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'application/json');
+
+        var init = {
+            method: 'POST',
+            headers: myHeaders,
+            body: JSON.stringify(data)
+        };
+
+        return fetch(url, init);
     }
 
-    getX(param) {
-        var url = this.urlBase + param;
+    delete(url) {
+        var myHeaders = new Headers();
 
-        return this.apiClient.get(url).then(
-            (dataEnJson) => {
-                let array = [];
+        var init = {
+            method: 'DELETE',
+            headers: myHeaders
+        };
 
-                return array;
+        return fetch(url, init);
+    }
+
+    deleteConBody(url, data) {
+        var myHeaders = new Headers();
+
+        var init = {
+            method: 'DELETE',
+            headers: myHeaders,
+            body: {
+                "password": data
             }
-        );
+        };
+
+        return fetch(url, init);
+    }
+
+    update(url, data) {
+        var myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'application/json');
+
+        var init = {
+            method: 'PUT',
+            headers: myHeaders,
+            body: JSON.stringify(data)
+        };
+
+        return fetch(url, init);
     }
 }
 
