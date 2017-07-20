@@ -386,7 +386,7 @@ class PaginaLogin extends Pagina {
                         </div>
                     </div>
                 </div>
-                <div class="alert" id="loginIncorrecto">Login Incorrecto!!!</div>
+                <div class="alert" id="loginIncorrecto">Usuario y/o Contraseña incorrectos.</div>
             </div>`;
 
         crearElemento("button", "Login", "divButtonLogin", "form-control btn btn-primary", "loginButton").addEventListener("click", () => this.getLogin());
@@ -502,7 +502,9 @@ class PaginaModificarUsuario extends Pagina {
     pintarPaginaHTML() {
         document.getElementById('main').innerHTML = "";
         var data = `
-            <label class=likeTitle> Modificar Usuario </label>
+            <div class=inLine id=modificarPerfilHeader>
+                <label class=likeTitle> Modificar Usuario </label>
+            </div>
             <div id=modificarusuarioDiv>
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -537,7 +539,7 @@ class PaginaModificarUsuario extends Pagina {
                     <div id="editarPerfilModal">
                         <div class="row">
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                <label> Para confirmar sus cambios, debe introducir su contraseña actual: </>
+                                <label id=dataModalTXT> Para confirmar sus cambios, debe introducir su contraseña actual: </label>
                                 <div class="form-group">
                                     <input type="password" id="confirmarContraseña" tabindex="1" class="form-control buttonMTop" value="">
                                 </div>
@@ -553,6 +555,8 @@ class PaginaModificarUsuario extends Pagina {
             </div>`;
 
         document.getElementById('main').innerHTML = data;
+
+        crearElemento("button", "Eliminar Cuenta", "modificarPerfilHeader", "butonRigth btn-default", "eliminarCuentaBtn").addEventListener("click", () => this.eliminarCuenta());
         crearElemento("button", "Actualizar", "divButtonActualizarPerfil", "form-control btn btn-primary", "ButtonActualizarPerfil").addEventListener("click", () => this.modalContraseña());
 
         crearElemento("button", "Confirmar", "divButtonConfirmarActualizarPerfil", "form-control btn btn-primary buttonMTop", "ButtonConfirmarActualizarPerfil").addEventListener("click", () => this.usuarioClient.updateUsuario(main.user.user).then(data => {
@@ -579,7 +583,47 @@ class PaginaModificarUsuario extends Pagina {
             }, 2000);
         }));
 
+        crearElemento("button", "Confirmar", "divButtonConfirmarActualizarPerfil", "form-control btn btn-primary buttonMTop", "ButtonConfirmarEliminarPerfil").addEventListener("click", () => this.usuarioClient.deleteUsuario(main.user.user._id).then(data => {
+            mostrarPantallaDeCarga(true);
+            var x = document.getElementById("snackbar");
+            if (data.status == 200) {
+                x.innerHTML = "Eliminación Completada";
+                // this.login.modificarDatosLogin(editarUser, confirmarContraseña);
+                // this.login.setLoginAtLocalStorage();
+                localStorage.removeItem("loginProyFinal");
+
+            } else {
+                x.innerHTML = "Error: verifique su contraseña o intente mas tarde.";
+            }
+            x.className = "show";
+            window.setTimeout(() => {
+                if (data.status == 200)
+                    this.navController.navigateToUrl("login");
+                mostrarPantallaDeCarga(false);
+                // document.getElementById("myModal").style.display = "none";
+            }, 2000);
+        }));
+
         this.pintarOtros();
+    }
+
+    eliminarCuenta(){
+        var modal = document.getElementById("myModal");
+        var spanClose = document.getElementsByClassName("close")[0];
+
+        spanClose.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        document.getElementById('ButtonConfirmarEliminarPerfil').style.display = "block";
+        document.getElementById('dataModalTXT').innerHTML = "Para confirmar la eliminación de esta cuenta, introduzca su contraseña:";
+        document.getElementById('ButtonConfirmarActualizarPerfil').style.display = "none";
+        modal.style.display = "block";
     }
 
     modalContraseña() {
@@ -596,6 +640,9 @@ class PaginaModificarUsuario extends Pagina {
             }
         }
 
+        document.getElementById('ButtonConfirmarEliminarPerfil').style.display = "none";
+        document.getElementById('dataModalTXT').innerHTML = "Para confirmar sus cambios, debe introducir su contraseña actual:";
+        document.getElementById('ButtonConfirmarActualizarPerfil').style.display = "block";
         modal.style.display = "block";
     }
 }
@@ -1317,8 +1364,10 @@ class UsuarioClient {
         return this.apiClient.post(url, usuario);
     }
 
-    deleteUsuario(id, pass) {
+    deleteUsuario(id) {
         var url = this.urlBase + "/" + id;
+        var pass = {"password": document.getElementById("confirmarContraseña").value};
+
         return this.apiClient.deleteConBody(url, pass);
     }
 
@@ -1376,13 +1425,12 @@ class APIClient {
 
     deleteConBody(url, data) {
         var myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'application/json');
 
         var init = {
             method: 'DELETE',
             headers: myHeaders,
-            body: {
-                "password": data
-            }
+            body: JSON.stringify(data)
         };
 
         return fetch(url, init);
