@@ -76,6 +76,17 @@ class Pagina {
     }
 }
 
+class UsersSession {
+    constructor() {
+        this.user = null;
+    }
+
+    modificarUser(obj) {
+        LOG(obj)
+        this.user = new Usuario(obj.email, obj.apellidos, obj.nombre, obj.username, obj.password, obj._id);
+    }
+}
+
 class Header {
     constructor(navController) {
         this.pintarPaginaHTML();
@@ -103,11 +114,15 @@ class Header {
         crearElemento("a", "Cerrar sesión", "perfilUsuarioHeaderAcciones", "", "loginButton").addEventListener("click", () => this.deslogearse());
         crearElemento("a", "Gestión de Comidas", "gestionProductosHeaderAcciones", "", "gestionComidasBtn").addEventListener("click", () => this.irAGestionComidas());
         crearElemento("a", "Gestión de Bebidas", "gestionProductosHeaderAcciones", "", "gestionBebidasBtn").addEventListener("click", () => this.irAGestionBebidas());
-        
+
     }
 
     irAPerfilUsuario() {
-        this.navController.navigateToUrl("perfilUsuario");
+        mostrarPantallaDeCarga(true);
+        window.setTimeout(() => {
+            this.navController.navigateToUrl("modificarUsuario");
+            mostrarPantallaDeCarga(false);
+        }, 300);
     }
 
     irAGestionComidas() {
@@ -119,8 +134,12 @@ class Header {
     }
 
     deslogearse() {
-        localStorage.removeItem("loginProyFinal");
-        this.navController.navigateToUrl("login");
+        mostrarPantallaDeCarga(true);
+        window.setTimeout(() => {
+            localStorage.removeItem("loginProyFinal");
+            this.navController.navigateToUrl("login");
+            mostrarPantallaDeCarga(false);
+        }, 300);
     }
 }
 
@@ -189,7 +208,6 @@ class PaginaLogin extends Pagina {
         this.loginClient.getLogin().then(data => {
             mostrarPantallaDeCarga(true);
             window.setTimeout(() => {
-                LOG(data);
                 if (data.status == 404 || data.status == 401) {
                     var elem = document.getElementById('loginIncorrecto');
                     setTimeout(() => {
@@ -199,8 +217,11 @@ class PaginaLogin extends Pagina {
                     setTimeout(() => elem.style.opacity = "0", 3500);
                     setTimeout(() => elem.style.display = "none", 4000);
                 } else {
+                    data.json().then(usuario => {
+                        main.user.modificarUser(usuario);
+                    });
                     if (document.getElementById('remember').checked) {
-                        this.login.modificarDatosLogin();
+                        this.login.modificarDatosLogin("username", "password");
                         this.login.setLoginAtLocalStorage();
                     }
                     this.navController.navigateToUrl("home");
@@ -273,7 +294,8 @@ class PaginaCrearUsuario extends Pagina {
             x.className = "show";
             window.setTimeout(() => {
                 x.className = x.className.replace("show", "");
-                this.navController.navigateToUrl("login");
+                if (data.status == 200)
+                    this.navController.navigateToUrl("login");
                 mostrarPantallaDeCarga(false);
             }, 3000)
         }));
@@ -281,15 +303,111 @@ class PaginaCrearUsuario extends Pagina {
     }
 }
 
-class PaginaPerfilUsuario extends Pagina {
+class PaginaModificarUsuario extends Pagina {
     constructor(navController) {
-        super("perfilUsuario", header, footer, navController);
+        super("modificarUsuario", header, footer, navController);
         this.usuarioClient = new UsuarioClient();
+        this.login = new Login();
     }
 
     pintarPaginaHTML() {
         document.getElementById('main').innerHTML = "";
+        var data = `
+            <label class=likeTitle> Modificar Usuario </label>
+            <div id=modificarusuarioDiv>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="form-group">
+                            <label>Nombre: </label>
+                            <input type="text" id="editarNombre" tabindex="1" class="form-control" value=${main.user.user.nombre}>
+                        </div>
+                        <div class="form-group">
+                            <label>Apellidos: </label>
+                            <input type="text" id="editarApellidos" tabindex="1" class="form-control" value=${main.user.user.apellidos}>
+                        </div>
+                        <div class="form-group">
+                            <label>Email: </label>
+                            <input type="text" id="editarEmail" tabindex="1" class="form-control" value=${main.user.user.email}>
+                        </div>
+                        <div class="form-group">
+                            <label>User: </label>
+                            <input type="text" id="editarUser" tabindex="1" class="form-control" value=${main.user.user.username}>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6 col-sm-offset-3" id="divButtonActualizarPerfil"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="snackbar"></div>
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="editarPerfilModal">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <label> Para confirmar sus cambios, debe introducir su contraseña actual: </>
+                                <div class="form-group">
+                                    <input type="password" id="confirmarContraseña" tabindex="1" class="form-control buttonMTop" value="">
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-sm-6 col-sm-offset-3" id="divButtonConfirmarActualizarPerfil"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        document.getElementById('main').innerHTML = data;
+        crearElemento("button", "Actualizar", "divButtonActualizarPerfil", "form-control btn btn-primary", "ButtonActualizarPerfil").addEventListener("click", () => this.modalContraseña());
+
+        crearElemento("button", "Confirmar", "divButtonConfirmarActualizarPerfil", "form-control btn btn-primary buttonMTop", "ButtonConfirmarActualizarPerfil").addEventListener("click", () => this.usuarioClient.updateUsuario(main.user.user).then(data => {
+            mostrarPantallaDeCarga(true);
+            var x = document.getElementById("snackbar");
+            if (data.status == 200) {
+                x.innerHTML = "Actualización Completada";
+                data.json().then(usuario => {
+                    main.user.modificarUser(usuario);
+                });
+                // this.login.modificarDatosLogin(editarUser, confirmarContraseña);
+                // this.login.setLoginAtLocalStorage();
+                localStorage.removeItem("loginProyFinal");
+
+            } else {
+                x.innerHTML = "Error: verifique su contraseña o intente mas tarde.";
+            }
+            x.className = "show";
+            window.setTimeout(() => {
+                x.className = x.className.replace("show", "");
+                mostrarPantallaDeCarga(false);
+                document.getElementById("myModal").style.display = "none";
+                document.getElementById("confirmarContraseña").value = "";
+            }, 2000);
+        }));
+
         this.pintarOtros();
+    }
+
+    modalContraseña() {
+        var modal = document.getElementById("myModal");
+        var spanClose = document.getElementsByClassName("close")[0];
+
+        spanClose.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        modal.style.display = "block";
     }
 }
 
@@ -305,11 +423,14 @@ class Login {
             this.setParamsDeLoginConObjeto(this.getLoginFromLocalStorage());
 
             return this.loginClient.getLoginInico(this).then(data => {
-                LOG(data);
-                if (data.status == 404 || data.status == 401)
+                if (data.status == 404 || data.status == 401) {
                     return false;
-                else
+                } else {
+                    data.json().then(usuario => {
+                        main.user.modificarUser(usuario);
+                    });
                     return true;
+                }
             });
         } else {
             return false
@@ -329,9 +450,9 @@ class Login {
         localStorage.setItem("loginProyFinal", JSON.stringify(this));
     }
 
-    modificarDatosLogin() {
-        this.username = document.getElementById('username').value;
-        this.password = document.getElementById('password').value;
+    modificarDatosLogin(user, pass) {
+        this.username = document.getElementById(user).value;
+        this.password = document.getElementById(pass).value;
     }
 }
 
@@ -763,6 +884,7 @@ class Main {
     constructor() {
         this.login = new Login();
         this.navController = new NavigationController();
+        this.user = new UsersSession();
         this.agregarPaginasANavController();
     }
 
@@ -775,12 +897,13 @@ class Main {
     }
 
     agregarPaginasANavController() {
+        this.navController.pages = [];
         this.navController.pages.push(new PaginaLogin(false, false, this.navController));
         this.navController.pages.push(new PaginaHome(this.navController));
         this.navController.pages.push(new PaginaGestionComidas(this.navController));
         this.navController.pages.push(new PaginaGestionBebidas(this.navController));
         this.navController.pages.push(new PaginaCrearUsuario(false, false, this.navController));
-        this.navController.pages.push(new PaginaPerfilUsuario(this.navController));
+        this.navController.pages.push(new PaginaModificarUsuario(this.navController));
     }
 }
 
@@ -790,7 +913,7 @@ class NavigationController {
     }
 
     navigateToUrl(url) {
-        this.pages.find((elem) => elem.url == url).pintarPaginaHTML(this);
+        this.pages.find((elem) => elem.url == url).pintarPaginaHTML();
     }
 }
 
@@ -820,7 +943,8 @@ class Comida extends Producto {
 }
 
 class Usuario {
-    constructor(email, apellidos, nombre, username, password) {
+    constructor(email = null, apellidos = null, nombre = null, username = null, password = null, id = null) {
+        this._id = id;
         this.email = email;
         this.apellidos = apellidos;
         this.nombre = nombre;
@@ -831,7 +955,7 @@ class Usuario {
 
 class ComidaClient {
     constructor() {
-        this.urlBase = 'http://tuabogadodeaccidentes.es/api/comidas';
+        this.urlBase = 'http://formacion-indra-franlindebl.com/api/comidas';
         this.apiClient = new APIClient();
     }
 
@@ -886,7 +1010,7 @@ class ComidaClient {
 
 class BebidaClient {
     constructor() {
-        this.urlBase = 'http://tuabogadodeaccidentes.es/api/bebidas';
+        this.urlBase = 'http://formacion-indra-franlindebl.com/api/bebidas';
         this.apiClient = new APIClient();
     }
 
@@ -941,7 +1065,7 @@ class BebidaClient {
 
 class LoginClient {
     constructor() {
-        this.urlBase = 'http://tuabogadodeaccidentes.es/api';
+        this.urlBase = 'http://formacion-indra-franlindebl.com/api';
         this.apiClient = new APIClient();
     }
 
@@ -951,20 +1075,21 @@ class LoginClient {
         var user = document.getElementById("username").value;
         var pass = document.getElementById("password").value;
 
-        var login = new Login(user, pass);
+        var loginObj = {"username": user, "password": pass};
 
-        return this.apiClient.post(url, login);
+        return this.apiClient.post(url, loginObj);
     }
 
     getLoginInico(login) {
         var url = this.urlBase + "/users/login";
-        return this.apiClient.post(url, login);
+        var loginObj = {"username": login.username, "password": login.password};
+        return this.apiClient.post(url, loginObj);
     }
 }
 
 class UsuarioClient {
     constructor() {
-        this.urlBase = 'http://tuabogadodeaccidentes.es/api/users';
+        this.urlBase = 'http://formacion-indra-franlindebl.com/api/users';
         this.apiClient = new APIClient();
     }
 
@@ -1013,11 +1138,11 @@ class UsuarioClient {
         var apellidos = document.getElementById("editarApellidos").value;
         var email = document.getElementById("editarEmail").value;
         var user = document.getElementById("editarUser").value;
-        var pass = document.getElementById("editarPass").value;
+        var pass = document.getElementById("confirmarContraseña").value;
 
-        var updateUsuario = new Usuario(email, apellidos, nombre, user, pass);
+        var updateUsuario = new Usuario(email, apellidos, nombre, user, pass, usuario._id);
 
-        var url = this.urlBase + "/" + usuario.id;
+        var url = this.urlBase + "/" + usuario._id;
         return this.apiClient.update(url, updateUsuario);
     }
 }
@@ -1046,7 +1171,7 @@ class APIClient {
             body: JSON.stringify(data)
         };
 
-        return fetch(url, init);
+        return fetch(url, init)
     }
 
     delete(url) {
