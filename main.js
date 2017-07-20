@@ -25,6 +25,33 @@ var crearElemento = (tipo, texto, nodoPadre, clase, id) => {
     return element;
 }
 
+var plusSlides = (n, sh, d) =>{
+  showSlides(slideIndex += n, sh, d);
+}
+
+var currentSlide = (n, sh, d) =>{
+  showSlides(slideIndex = n, sh, d);
+}
+
+var slideIndex = 1;
+var showSlides = (n, sh, d) =>{
+  var i;
+  var slides = document.getElementsByClassName(sh);
+  var dots = document.getElementsByClassName(d);
+  if (n > slides.length) {slideIndex = 1} 
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none"; 
+  }
+  for (i = 0; i < dots.length; i++) {
+      dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block"; 
+  dots[slideIndex-1].className += " active";
+}
+
+
+
 class Pagina {
     constructor(url, header, footer, navController) {
         this.navController = navController;
@@ -172,14 +199,159 @@ class Footer {
 class PaginaHome extends Pagina {
     constructor(navController) {
         super("home", true, true, navController);
+        this.comidaClient = new ComidaClient();
+        this.bebidaClient = new BebidaClient();
     }
 
     pintarPaginaHTML() {
         document.getElementById('main').innerHTML = `
-            
+            <div class=row>
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div id=dashboardComidas class=dashboard>
+                        <div >
+                            <div class=subDashboard id=subDashboardComidas>
+                            </div>
+                            <div class="slideshow-container">
+                              <div class="mySlides sh1 fade">
+                                <img src="comida1.jpg" style="width:100%">
+                              </div>
+
+                              <div class="mySlides sh1 fade">
+                                <img src="comida6.jpg" style="width:100%">
+                              </div>
+
+                              <div class="mySlides sh1 fade">
+                                <img src="comida7.jpg" style="width:100%">
+                              </div>
+
+                              <div class="mySlides sh1 fade">
+                                <img src="comida8.jpg" style="width:100%">
+                              </div>
+
+                              <a class="prev" onclick="plusSlides(-1, 'sh1', 'd1')">&#10094;</a>
+                              <a class="next" onclick="plusSlides(1, 'sh1', 'd1')">&#10095;</a>
+                            </div>
+                            <br>
+
+                            <div style="text-align:center">
+                              <span class="dot d1" onclick="currentSlide(1)"></span> 
+                              <span class="dot d1" onclick="currentSlide(2)"></span> 
+                              <span class="dot d1" onclick="currentSlide(3)"></span> 
+                              <span class="dot d1" onclick="currentSlide(4)"></span> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                    <div id=dashboardBebidas class=dashboard>
+                        <div >
+                            <div class=subDashboard id=subDashboardBebidas>
+                            </div>
+                            <div class="slideshow-container">
+                              <div class="mySlides sh2 fade">
+                                <img src="bebida1.jpg" style="width:100%">
+                              </div>
+
+                              <div class="mySlides sh2 fade">
+                                <img src="bebida2.jpg" style="width:100%">
+                              </div>
+
+                              <div class="mySlides sh2 fade">
+                                <img src="bebida3.jpg" style="width:100%">
+                              </div>
+
+                              <div class="mySlides sh2 fade">
+                                <img src="bebida4.jpg" style="width:100%">
+                              </div>
+
+                              <a class="prev" onclick="plusSlides(-1, 'sh2', 'd2')">&#10094;</a>
+                              <a class="next" onclick="plusSlides(1, 'sh2', 'd2')">&#10095;</a>
+                            </div>
+                            <br>
+
+                            <div style="text-align:center">
+                              <span class="dot d2" onclick="currentSlide(1)"></span> 
+                              <span class="dot d2" onclick="currentSlide(2)"></span> 
+                              <span class="dot d2" onclick="currentSlide(3)"></span> 
+                              <span class="dot d2" onclick="currentSlide(4)"></span> 
+                            </div>
+                        </div>
+                    </div>
+                </div
         `;
-        
+
+        showSlides(slideIndex, "sh1", "d1");
+        showSlides(slideIndex, "sh2", "d2");
+
+        document.querySelector("#subDashboardComidas").addEventListener("click", () => this.irAComidas());
+        document.querySelector("#subDashboardBebidas").addEventListener("click", () => this.irABebidas());
+        this.pintarSubDashboardComidas();
+        this.pintarSubDashboardBebidas();
         this.pintarOtros();
+    }
+
+    pintarSubDashboardComidas(){
+        let pintarSubDashboardComidasHTML = (data) => {
+            var cantidadDePostres = data.filter((elem) => elem.tipo.toLowerCase() == "postre").length;
+            var cantidadDeEntradas = data.filter((elem) => elem.tipo.toLowerCase() == "entrada" || elem.tipo.toLowerCase() == "entrante").length;
+            var cantidadDePrincipales = data.filter((elem) => elem.tipo.toLowerCase() == "principal").length;
+            var comidaMasCalorica = data.sort((a, b) => b.calorias - a.calorias)[0];
+            var comidaMasBarata = data.sort((a, b) => a.precio - b.precio)[0];
+            var comidaConMayorExistencias = data.sort((a, b) => b.existencias - a.existencias)[0];
+            document.getElementById('subDashboardComidas').innerHTML = `
+                <div>
+                <h3> Comidas: </h3>
+                <p> Cantidad de Entradas: ${cantidadDeEntradas} </p>
+                <p> Cantidad de Platos Principales: ${cantidadDePrincipales} </p>
+                <p> Cantidad de Postres: ${cantidadDePostres} </p>
+                <hr>
+                <p> Comida con mas calorias: ${comidaMasCalorica.nombre} - ${comidaMasCalorica.calorias} calorias</p>
+                <p> Comida mas barata: ${comidaMasBarata.nombre} - $${comidaMasBarata.precio}</p>
+                <p> Comida con mayor numero de existencias: ${comidaConMayorExistencias.nombre} - ${comidaConMayorExistencias.existencias} unidades</p>
+                </div>`;
+
+        }
+
+        this.comidaClient.getComidas().then(data =>  {
+            pintarSubDashboardComidasHTML(data);
+        });
+    }
+
+    pintarSubDashboardBebidas(){
+        let pintarSubDashboardBebidasHTML = (data) => {
+            var cantidadDeBebidasNormales = data.filter((elem) => !elem.esAlcoholica).length;
+            var cantidadDeBebidasAlcoholicas = data.filter((elem) => elem.esAlcoholica).length;
+            var bebidaMasFuerte = data.sort((a, b) => b.grados - a.grados)[0];
+            var bebidaMasCara = data.sort((a, b) => b.precio - a.precio)[0];
+            var bebidaMasBarata = data.sort((a, b) => a.grados - b.grados)[0];
+            var bebidaConMayorExistencias = data.sort((a, b) => b.existencias - a.existencias)[0];
+            
+            document.getElementById('subDashboardBebidas').innerHTML = `
+                <div>
+                <h3> Bebidas: </h3>
+                <p> Cantidad de Bebidas No Alcoholicas: ${cantidadDeBebidasNormales} </p>
+                <p> Cantidad de Bebidas Alcoholicas: ${cantidadDeBebidasAlcoholicas} </p>
+                <hr>
+
+                <p> Bebida Alcoholica mas fuerte: ${bebidaMasFuerte.nombre} - ${bebidaMasFuerte.grados}º</p>
+                <p> Bebida mas cara: ${bebidaMasCara.nombre} - $${bebidaMasCara.precio}</p>
+                <p> Bebida mas barata: ${bebidaMasBarata.nombre} - $${bebidaMasBarata.precio}</p>
+                <p> Bebida con mayor número de existencias: ${bebidaConMayorExistencias.nombre} - ${bebidaConMayorExistencias.existencias} unidades</p>
+                </div>`;
+
+        }
+
+        this.bebidaClient.getBebidas().then(data =>  {
+            pintarSubDashboardBebidasHTML(data);
+        });
+    }
+
+    irAComidas(){
+        this.navController.navigateToUrl("gestionComidas");
+    }
+
+    irABebidas(){
+        this.navController.navigateToUrl("gestionBebidas");
     }
 }
 
@@ -487,7 +659,7 @@ class PaginaGestionComidas extends Pagina {
             <div class=inLine id=nuevaComidaHeader>
                 <label class=likeTitle> Gestión de Comidas:</label>
             </div>
-            <div class=table-responsive> 
+            <div class='table-responsive tbackground'> 
             <table class='table centerTable' id=tablaComidas>
                 <thead> 
                     <tr> 
@@ -675,7 +847,7 @@ class PaginaGestionBebidas extends Pagina {
             <div class=inLine id=nuevaBebidaHeader>
                 <label class=likeTitle> Gestión de Bebidas:</label>
             </div>
-            <div class=table-responsive> 
+            <div class='table-responsive tbackground'> 
             <table class='table centerTable' id=tablaBebidas>
                 <thead> 
                     <tr> 

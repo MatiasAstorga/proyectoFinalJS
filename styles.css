@@ -18,6 +18,10 @@
     height: auto;
     background: #ff9c33;
     padding: 20px;
+    background-image: url("fondoPagina.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 #footer{
@@ -63,6 +67,12 @@
     cursor: pointer;
 }
 
+.tbackground{
+    background: #ff9c33;
+    width: 85%;
+    margin: auto;
+}
+
 .displayBlock{
     display: block;
 }
@@ -99,6 +109,32 @@ a img:hover{
 
 .borrarComida, .borrarBebida{
     margin-right: 8px;
+}
+
+.dashboard{
+    background-color: #e6e6e6;
+    padding: 20px;
+    max-width: 80%;
+    height: auto;
+    border: 1px solid black;
+    margin: auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.subDashboard{
+    background-color: #e6ffff;
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+    border: 1px solid black;
+    cursor: pointer;
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.subDashboard:hover{
+    opacity: 0.3;
 }
 
 .loader {
@@ -309,4 +345,92 @@ input[type="text"],.input[type="email"],input[type="password"] {
 
 .dropdown:hover .dropbtn {
     background-color: #3e8e41;
+}
+
+* {box-sizing:border-box}
+
+.slideshow-container {
+  max-width: 1000px;
+  position: relative;
+  margin: auto;
+}
+
+.mySlides {
+    display: none;
+}
+
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  width: auto;
+  padding: 16px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+}
+
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+.prev:hover, .next:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+
+.text {
+  color: #f2f2f2;
+  font-size: 15px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+.numbertext {
+  color: #f2f2f2;
+  font-size: 12px;
+  padding: 8px 12px;
+  position: absolute;
+  top: 0;
+}
+
+.dot {
+  cursor:pointer;
+  height: 13px;
+  width: 13px;
+  margin: 0 2px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+
+.active, .dot:hover {
+  background-color: #717171;
+}
+
+.fade {
+    opacity: 1;
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 1.5s;
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fade {
+  from {opacity: .4} 
+  to {opacity: 1}
+}
+
+@keyframes fade {
+  from {opacity: .4} 
+  to {opacity: 1}
+}
+
+h3{
+    margin-top: 0px;
 }
