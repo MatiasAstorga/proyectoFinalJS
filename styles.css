@@ -21,8 +21,8 @@
 }
 
 #footer{
-    height: 150px;
-    background: LightBlue;
+    height: auto;
+    background: #4CAF50;
     display: none;
 }
 
@@ -73,6 +73,15 @@
 
 #editarPerfilModal{
     text-align: center;
+}
+
+.imgPos{
+    width: 45px;
+    height: auto;
+}
+
+a img:hover{
+    opacity: 0.4;
 }
 
 .butonRigth{
@@ -160,6 +169,12 @@
     max-width: 900px;
     margin: auto;
     padding: 10px;
+}
+
+.footerText{
+    text-align: center;
+    padding: 15px;
+    font-style: italic;
 }
 
 .btnFixedVolver{

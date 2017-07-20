@@ -82,7 +82,6 @@ class UsersSession {
     }
 
     modificarUser(obj) {
-        LOG(obj)
         this.user = new Usuario(obj.email, obj.apellidos, obj.nombre, obj.username, obj.password, obj._id);
     }
 }
@@ -95,6 +94,9 @@ class Header {
 
     pintarPaginaHTML() {
         var data = `
+        
+            <a class="dropbtn" id=homeIcon><img src=homeIcon.png class=imgPos></img></a>
+                 
             <div class="dropdown">
               <button class="dropbtn">Perfil</button>
               <div class="dropdown-content" id=perfilUsuarioHeaderAcciones>
@@ -115,6 +117,15 @@ class Header {
         crearElemento("a", "Gestión de Comidas", "gestionProductosHeaderAcciones", "", "gestionComidasBtn").addEventListener("click", () => this.irAGestionComidas());
         crearElemento("a", "Gestión de Bebidas", "gestionProductosHeaderAcciones", "", "gestionBebidasBtn").addEventListener("click", () => this.irAGestionBebidas());
 
+        document.querySelector("#homeIcon").addEventListener("click", () => this.irAHome());
+    }
+
+    irAHome(){
+        mostrarPantallaDeCarga(true);
+        window.setTimeout(() => {
+            this.navController.navigateToUrl("home");
+            mostrarPantallaDeCarga(false);
+        }, 200);
     }
 
     irAPerfilUsuario() {
@@ -150,7 +161,11 @@ class Footer {
     }
 
     pintarPaginaHTML() {
-        document.getElementById('footer').innerHTML = "";
+        document.getElementById('footer').innerHTML = `
+            <div class=footerText>
+            <label>Curso Javascript 2017</label>
+            </div>  
+        `;
     }
 }
 
@@ -160,7 +175,10 @@ class PaginaHome extends Pagina {
     }
 
     pintarPaginaHTML() {
-        document.getElementById('main').innerHTML = "";
+        document.getElementById('main').innerHTML = `
+            
+        `;
+        
         this.pintarOtros();
     }
 }
@@ -283,7 +301,6 @@ class PaginaCrearUsuario extends Pagina {
 
         crearElemento("button", "Volver", "divButtonCrearUsuario", "form-control btn btn-success btnFixedVolver", "volverALoginBtn").addEventListener("click", () => this.navController.navigateToUrl("login"))
         crearElemento("button", "Crear Usuario", "divButtonCrearUsuario", "form-control btn btn-primary", "crearNuevoUsuariobtn").addEventListener("click", () => this.usuarioClient.postUsuario().then(data => {
-            LOG(data);
             mostrarPantallaDeCarga(true);
             var x = document.getElementById("snackbar");
             if (data.status == 200) {
