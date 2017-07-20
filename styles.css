@@ -58,6 +58,7 @@
 .likeTitle{
     font-size: 25px;
     color: white;
+    /*background: #ff9c33;*/
     font-style: italic;
     font-variant: small-caps;
     -webkit-font-smoothing: antialiased;
@@ -134,7 +135,7 @@ a img:hover{
 }
 
 .subDashboard:hover{
-    opacity: 0.3;
+    background: #e1bfff;
 }
 
 .loader {

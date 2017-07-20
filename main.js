@@ -152,7 +152,7 @@ class Header {
         window.setTimeout(() => {
             this.navController.navigateToUrl("home");
             mostrarPantallaDeCarga(false);
-        }, 200);
+        }, 400);
     }
 
     irAPerfilUsuario() {
@@ -234,10 +234,10 @@ class PaginaHome extends Pagina {
                             <br>
 
                             <div style="text-align:center">
-                              <span class="dot d1" onclick="currentSlide(1)"></span> 
-                              <span class="dot d1" onclick="currentSlide(2)"></span> 
-                              <span class="dot d1" onclick="currentSlide(3)"></span> 
-                              <span class="dot d1" onclick="currentSlide(4)"></span> 
+                              <span class="dot d1" onclick="currentSlide(1, 'sh1', 'd1')"></span> 
+                              <span class="dot d1" onclick="currentSlide(2, 'sh1', 'd1')"></span> 
+                              <span class="dot d1" onclick="currentSlide(3, 'sh1', 'd1')"></span> 
+                              <span class="dot d1" onclick="currentSlide(4, 'sh1', 'd1')"></span> 
                             </div>
                         </div>
                     </div>
@@ -270,10 +270,10 @@ class PaginaHome extends Pagina {
                             <br>
 
                             <div style="text-align:center">
-                              <span class="dot d2" onclick="currentSlide(1)"></span> 
-                              <span class="dot d2" onclick="currentSlide(2)"></span> 
-                              <span class="dot d2" onclick="currentSlide(3)"></span> 
-                              <span class="dot d2" onclick="currentSlide(4)"></span> 
+                              <span class="dot d2" onclick="currentSlide(1, 'sh2', 'd2')"></span> 
+                              <span class="dot d2" onclick="currentSlide(2, 'sh2', 'd2')"></span> 
+                              <span class="dot d2" onclick="currentSlide(3, 'sh2', 'd2')"></span> 
+                              <span class="dot d2" onclick="currentSlide(4, 'sh2', 'd2')"></span> 
                             </div>
                         </div>
                     </div>
