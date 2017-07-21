@@ -25,29 +25,33 @@ var crearElemento = (tipo, texto, nodoPadre, clase, id) => {
     return element;
 }
 
-var plusSlides = (n, sh, d) =>{
-  showSlides(slideIndex += n, sh, d);
+var plusSlides = (n, sh, d) => {
+    showSlides(slideIndex += n, sh, d);
 }
 
-var currentSlide = (n, sh, d) =>{
-  showSlides(slideIndex = n, sh, d);
+var currentSlide = (n, sh, d) => {
+    showSlides(slideIndex = n, sh, d);
 }
 
 var slideIndex = 1;
-var showSlides = (n, sh, d) =>{
-  var i;
-  var slides = document.getElementsByClassName(sh);
-  var dots = document.getElementsByClassName(d);
-  if (n > slides.length) {slideIndex = 1} 
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-      slides[i].style.display = "none"; 
-  }
-  for (i = 0; i < dots.length; i++) {
-      dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block"; 
-  dots[slideIndex-1].className += " active";
+var showSlides = (n, sh, d) => {
+    var i;
+    var slides = document.getElementsByClassName(sh);
+    var dots = document.getElementsByClassName(d);
+    if (n > slides.length) {
+        slideIndex = 1
+    }
+    if (n < 1) {
+        slideIndex = slides.length
+    }
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active", "");
+    }
+    slides[slideIndex - 1].style.display = "block";
+    dots[slideIndex - 1].className += " active";
 }
 
 
@@ -78,7 +82,8 @@ class Pagina {
                     <div class="loader"></div>
                 </div>
                 <div id="bottom"></div>
-            </div>`;
+            </div>
+            <div id="snackbar"></div>`;
 
         var header = new Header(this.navController);
         var footer = new Footer(this.navController);
@@ -147,7 +152,7 @@ class Header {
         document.querySelector("#homeIcon").addEventListener("click", () => this.irAHome());
     }
 
-    irAHome(){
+    irAHome() {
         mostrarPantallaDeCarga(true);
         window.setTimeout(() => {
             this.navController.navigateToUrl("home");
@@ -290,67 +295,82 @@ class PaginaHome extends Pagina {
         this.pintarOtros();
     }
 
-    pintarSubDashboardComidas(){
+    pintarSubDashboardComidas() {
         let pintarSubDashboardComidasHTML = (data) => {
-            var cantidadDePostres = data.filter((elem) => elem.tipo.toLowerCase() == "postre").length;
-            var cantidadDeEntradas = data.filter((elem) => elem.tipo.toLowerCase() == "entrada" || elem.tipo.toLowerCase() == "entrante").length;
-            var cantidadDePrincipales = data.filter((elem) => elem.tipo.toLowerCase() == "principal").length;
-            var comidaMasCalorica = data.sort((a, b) => b.calorias - a.calorias)[0];
-            var comidaMasBarata = data.sort((a, b) => a.precio - b.precio)[0];
-            var comidaConMayorExistencias = data.sort((a, b) => b.existencias - a.existencias)[0];
-            document.getElementById('subDashboardComidas').innerHTML = `
-                <div>
-                <h3> Comidas: </h3>
-                <p> Cantidad de Entradas: ${cantidadDeEntradas} </p>
-                <p> Cantidad de Platos Principales: ${cantidadDePrincipales} </p>
-                <p> Cantidad de Postres: ${cantidadDePostres} </p>
-                <hr>
-                <p> Comida con mas calorias: ${comidaMasCalorica.nombre} - ${comidaMasCalorica.calorias} calorias</p>
-                <p> Comida mas barata: ${comidaMasBarata.nombre} - $${comidaMasBarata.precio}</p>
-                <p> Comida con mayor numero de existencias: ${comidaConMayorExistencias.nombre} - ${comidaConMayorExistencias.existencias} unidades</p>
-                </div>`;
-
+            if (data.length > 0) {
+                var cantidadDePostres = data.filter((elem) => elem.tipo.toLowerCase() == "postre").length;
+                var cantidadDeEntradas = data.filter((elem) => elem.tipo.toLowerCase() == "entrada" || elem.tipo.toLowerCase() == "entrante").length;
+                var cantidadDePrincipales = data.filter((elem) => elem.tipo.toLowerCase() == "principal").length;
+                var comidaMasCalorica = data.sort((a, b) => b.calorias - a.calorias)[0];
+                var comidaMasBarata = data.sort((a, b) => a.precio - b.precio)[0];
+                var comidaConMayorExistencias = data.sort((a, b) => b.existencias - a.existencias)[0];
+                document.getElementById('subDashboardComidas').innerHTML = `
+                    <div>
+                        <h3> Comidas: </h3>
+                        <p> Cantidad de Entradas: ${cantidadDeEntradas} </p>
+                        <p> Cantidad de Platos Principales: ${cantidadDePrincipales} </p>
+                        <p> Cantidad de Postres: ${cantidadDePostres} </p>
+                        <hr>
+                        <p> Comida con mas calorias: ${comidaMasCalorica.nombre} - ${comidaMasCalorica.calorias} calorias</p>
+                        <p> Comida mas barata: ${comidaMasBarata.nombre} - $${comidaMasBarata.precio}</p>
+                        <p> Comida con mayor numero de existencias: ${comidaConMayorExistencias.nombre} - ${comidaConMayorExistencias.existencias} unidades</p>
+                    </div>`;
+            } else {
+                document.getElementById('subDashboardComidas').innerHTML = `
+                    <div>
+                        <h3> Comidas: </h3>
+                        <p> Sin productos </p>
+                    </div>`;
+            }
         }
 
-        this.comidaClient.getComidas().then(data =>  {
+        this.comidaClient.getComidas().then(data => {
             pintarSubDashboardComidasHTML(data);
         });
     }
 
-    pintarSubDashboardBebidas(){
+    pintarSubDashboardBebidas() {
         let pintarSubDashboardBebidasHTML = (data) => {
-            var cantidadDeBebidasNormales = data.filter((elem) => !elem.esAlcoholica).length;
-            var cantidadDeBebidasAlcoholicas = data.filter((elem) => elem.esAlcoholica).length;
-            var bebidaMasFuerte = data.sort((a, b) => b.grados - a.grados)[0];
-            var bebidaMasCara = data.sort((a, b) => b.precio - a.precio)[0];
-            var bebidaMasBarata = data.sort((a, b) => a.grados - b.grados)[0];
-            var bebidaConMayorExistencias = data.sort((a, b) => b.existencias - a.existencias)[0];
-            
-            document.getElementById('subDashboardBebidas').innerHTML = `
-                <div>
-                <h3> Bebidas: </h3>
-                <p> Cantidad de Bebidas No Alcoholicas: ${cantidadDeBebidasNormales} </p>
-                <p> Cantidad de Bebidas Alcoholicas: ${cantidadDeBebidasAlcoholicas} </p>
-                <hr>
+            if (data.length > 0) {
+                var cantidadDeBebidasNormales = data.filter((elem) => !elem.esAlcoholica).length;
+                var cantidadDeBebidasAlcoholicas = data.filter((elem) => elem.esAlcoholica).length;
+                var bebidaMasFuerte = data.sort((a, b) => b.grados - a.grados)[0];
+                var bebidaMasCara = data.sort((a, b) => b.precio - a.precio)[0];
+                var bebidaMasBarata = data.sort((a, b) => a.grados - b.grados)[0];
+                var bebidaConMayorExistencias = data.sort((a, b) => b.existencias - a.existencias)[0];
 
-                <p> Bebida Alcoholica mas fuerte: ${bebidaMasFuerte.nombre} - ${bebidaMasFuerte.grados}º</p>
-                <p> Bebida mas cara: ${bebidaMasCara.nombre} - $${bebidaMasCara.precio}</p>
-                <p> Bebida mas barata: ${bebidaMasBarata.nombre} - $${bebidaMasBarata.precio}</p>
-                <p> Bebida con mayor número de existencias: ${bebidaConMayorExistencias.nombre} - ${bebidaConMayorExistencias.existencias} unidades</p>
-                </div>`;
+                document.getElementById('subDashboardBebidas').innerHTML = `
+                    <div>
+                        <h3> Bebidas: </h3>
+                        <p> Cantidad de Bebidas No Alcoholicas: ${cantidadDeBebidasNormales} </p>
+                        <p> Cantidad de Bebidas Alcoholicas: ${cantidadDeBebidasAlcoholicas} </p>
+                        <hr>
+
+                        <p> Bebida Alcoholica mas fuerte: ${bebidaMasFuerte.nombre} - ${bebidaMasFuerte.grados}º</p>
+                        <p> Bebida mas cara: ${bebidaMasCara.nombre} - $${bebidaMasCara.precio}</p>
+                        <p> Bebida mas barata: ${bebidaMasBarata.nombre} - $${bebidaMasBarata.precio}</p>
+                        <p> Bebida con mayor número de existencias: ${bebidaConMayorExistencias.nombre} - ${bebidaConMayorExistencias.existencias} unidades</p>
+                    </div>`;
+            } else {
+                document.getElementById('subDashboardComidas').innerHTML = `
+                    <div>
+                        <h3> Bebidas: </h3>
+                        <p> Sin productos </p>
+                    </div>`;
+            }
 
         }
 
-        this.bebidaClient.getBebidas().then(data =>  {
+        this.bebidaClient.getBebidas().then(data => {
             pintarSubDashboardBebidasHTML(data);
         });
     }
 
-    irAComidas(){
+    irAComidas() {
         this.navController.navigateToUrl("gestionComidas");
     }
 
-    irABebidas(){
+    irABebidas() {
         this.navController.navigateToUrl("gestionBebidas");
     }
 }
@@ -469,7 +489,7 @@ class PaginaCrearUsuario extends Pagina {
                 </div>
             </div>
             <div id=volverALogin> </div>
-            <div id="snackbar"></div>`;
+            `;
 
         crearElemento("button", "Volver", "divButtonCrearUsuario", "form-control btn btn-success btnFixedVolver", "volverALoginBtn").addEventListener("click", () => this.navController.navigateToUrl("login"))
         crearElemento("button", "Crear Usuario", "divButtonCrearUsuario", "form-control btn btn-primary", "crearNuevoUsuariobtn").addEventListener("click", () => this.usuarioClient.postUsuario().then(data => {
@@ -532,7 +552,7 @@ class PaginaModificarUsuario extends Pagina {
                     </div>
                 </div>
             </div>
-            <div id="snackbar"></div>
+            
             <div id="myModal" class="modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
@@ -567,8 +587,6 @@ class PaginaModificarUsuario extends Pagina {
                 data.json().then(usuario => {
                     main.user.modificarUser(usuario);
                 });
-                // this.login.modificarDatosLogin(editarUser, confirmarContraseña);
-                // this.login.setLoginAtLocalStorage();
                 localStorage.removeItem("loginProyFinal");
 
             } else {
@@ -588,8 +606,6 @@ class PaginaModificarUsuario extends Pagina {
             var x = document.getElementById("snackbar");
             if (data.status == 200) {
                 x.innerHTML = "Eliminación Completada";
-                // this.login.modificarDatosLogin(editarUser, confirmarContraseña);
-                // this.login.setLoginAtLocalStorage();
                 localStorage.removeItem("loginProyFinal");
 
             } else {
@@ -600,33 +616,21 @@ class PaginaModificarUsuario extends Pagina {
                 if (data.status == 200)
                     this.navController.navigateToUrl("login");
                 mostrarPantallaDeCarga(false);
-                // document.getElementById("myModal").style.display = "none";
             }, 2000);
         }));
 
         this.pintarOtros();
     }
 
-    eliminarCuenta(){
-        var modal = document.getElementById("myModal");
-        var spanClose = document.getElementsByClassName("close")[0];
-
-        spanClose.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-        document.getElementById('ButtonConfirmarEliminarPerfil').style.display = "block";
-        document.getElementById('dataModalTXT').innerHTML = "Para confirmar la eliminación de esta cuenta, introduzca su contraseña:";
-        document.getElementById('ButtonConfirmarActualizarPerfil').style.display = "none";
-        modal.style.display = "block";
+    eliminarCuenta() {
+        this.pintarModal("block", "Para confirmar la eliminación de esta cuenta, introduzca su contraseña:", "none");
     }
 
     modalContraseña() {
+        this.pintarModal("none", "Para confirmar sus cambios, debe introducir su contraseña actual:", "block");
+    }
+
+    pintarModal(displayE, msg, displayA) {
         var modal = document.getElementById("myModal");
         var spanClose = document.getElementsByClassName("close")[0];
 
@@ -640,9 +644,9 @@ class PaginaModificarUsuario extends Pagina {
             }
         }
 
-        document.getElementById('ButtonConfirmarEliminarPerfil').style.display = "none";
-        document.getElementById('dataModalTXT').innerHTML = "Para confirmar sus cambios, debe introducir su contraseña actual:";
-        document.getElementById('ButtonConfirmarActualizarPerfil').style.display = "block";
+        document.getElementById('ButtonConfirmarEliminarPerfil').style.display = displayE;
+        document.getElementById('dataModalTXT').innerHTML = msg;
+        document.getElementById('ButtonConfirmarActualizarPerfil').style.display = displayA;
         modal.style.display = "block";
     }
 }
@@ -741,8 +745,8 @@ class PaginaGestionComidas extends Pagina {
                     <div id="ComidaModal"></div>
                 </div>
             </div>
+            `;
 
-        `;
             document.getElementById("main").innerHTML = data;
             this.pintarOtros();
             this.pintarAcciones();
@@ -774,18 +778,8 @@ class PaginaGestionComidas extends Pagina {
     }
 
     añadirComida() {
-        var modal = document.getElementById("myModal");
-        var spanClose = document.getElementsByClassName("close")[0];
+        this.mostrarModal();
 
-        spanClose.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
         document.getElementById('ComidaModal').innerHTML = "";
         var data = `
             <div class="row">
@@ -800,15 +794,15 @@ class PaginaGestionComidas extends Pagina {
                     </div>
                     <div class="form-group">
                         <label>Existencias: </label>
-                        <input type="text" id="existenciasComida" tabindex="1" class="form-control" value="">
+                        <input type="number" id="existenciasComida" tabindex="1" class="form-control" value="">
                     </div>
                     <div class="form-group">
                         <label>Calorias: </label>
-                        <input type="text" id="caloriasComida" tabindex="1" class="form-control" value="">
+                        <input type="number" id="caloriasComida" tabindex="1" class="form-control" value="">
                     </div>
                     <div class="form-group">
                         <label>Precio: </label>
-                        <input type="text" id="precioComida" tabindex="1" class="form-control" value="">
+                        <input type="number" id="precioComida" tabindex="1" class="form-control" value="">
                     </div>
                     <div class="form-group">
                         <div class="row">
@@ -819,28 +813,16 @@ class PaginaGestionComidas extends Pagina {
             </div>`;
         document.getElementById('ComidaModal').innerHTML = data;
 
-        crearElemento("button", "Añadir", "divButtonAñadirComida", "form-control btn btn-primary", "ButtonAñadirComida").addEventListener("click", () => this.comidaClient.postComida().then(data => this.pintarPaginaHTML(data)));
-
-        modal.style.display = "block";
+        crearElemento("button", "Añadir", "divButtonAñadirComida", "form-control btn btn-primary", "ButtonAñadirComida").addEventListener("click", () => this.comidaClient.postComida().then(data => this.gestionPromesas(data, "Comida Añadida")));
     }
 
     eliminarComida(index) {
-        this.comidaClient.deleteComida(this.comidas[index]._id).then(data => this.pintarPaginaHTML(data));
+        this.comidaClient.deleteComida(this.comidas[index]._id).then(data => this.gestionPromesas(data, "Comida Eliminada"));
     }
 
     editarComida(index) {
-        var modal = document.getElementById("myModal");
-        var spanClose = document.getElementsByClassName("close")[0];
+        this.mostrarModal();
 
-        spanClose.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
         document.getElementById('ComidaModal').innerHTML = "";
         var data = `
             <div class="row">
@@ -855,15 +837,15 @@ class PaginaGestionComidas extends Pagina {
                     </div>
                     <div class="form-group">
                         <label>Existencias: </label>
-                        <input type="text" id="editarExistencias" tabindex="1" class="form-control" value=${this.comidas[index].existencias}>
+                        <input type="number" id="editarExistencias" tabindex="1" class="form-control" value=${this.comidas[index].existencias}>
                     </div>
                     <div class="form-group">
                         <label>Calorias: </label>
-                        <input type="text" id="editarCalorias" tabindex="1" class="form-control" value=${this.comidas[index].calorias}>
+                        <input type="number" id="editarCalorias" tabindex="1" class="form-control" value=${this.comidas[index].calorias}>
                     </div>
                     <div class="form-group">
                         <label>Precio: </label>
-                        <input type="text" id="editarPrecio" tabindex="1" class="form-control" value=${this.comidas[index].precio}>
+                        <input type="number" id="editarPrecio" tabindex="1" class="form-control" value=${this.comidas[index].precio}>
                     </div>
                     <div class="form-group">
                         <div class="row">
@@ -874,9 +856,39 @@ class PaginaGestionComidas extends Pagina {
             </div>`;
 
         document.getElementById('ComidaModal').innerHTML = data;
-        crearElemento("button", "Guardar", "divButtonEditarComida", "form-control btn btn-primary", "ButtonEditarComida").addEventListener("click", () => this.comidaClient.updateComida(this.comidas[index]).then(data => this.pintarPaginaHTML(data)));
+        crearElemento("button", "Guardar", "divButtonEditarComida", "form-control btn btn-primary", "ButtonEditarComida").addEventListener("click", () => this.comidaClient.updateComida(this.comidas[index]).then(data => this.gestionPromesas(data, "Comida Editada")));
+    }
 
+    mostrarModal() {
+        var modal = document.getElementById("myModal");
+        var spanClose = document.getElementsByClassName("close")[0];
+
+        spanClose.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
         modal.style.display = "block";
+    }
+
+    gestionPromesas(data, msg) {
+        mostrarPantallaDeCarga(true);
+        var x = document.getElementById("snackbar");
+        if (data.status == 200) {
+            x.innerHTML = msg;
+        } else {
+            x.innerHTML = "Error: datos incorrectos, intente mas tarde.";
+        }
+        x.className = "show";
+        window.setTimeout(() => {
+            if (data.status == 200)
+                this.pintarPaginaHTML(data);
+            x.className = x.className.replace("show", "");
+        }, 1500);
     }
 }
 
@@ -932,8 +944,8 @@ class PaginaGestionBebidas extends Pagina {
                     <div id="BebidaModal"></div>
                 </div>
             </div>
+            `;
 
-        `;
             document.getElementById("main").innerHTML = data;
             this.pintarOtros();
             this.pintarAcciones();
@@ -965,18 +977,8 @@ class PaginaGestionBebidas extends Pagina {
     }
 
     añadirBebida() {
-        var modal = document.getElementById("myModal");
-        var spanClose = document.getElementsByClassName("close")[0];
+        this.mostrarModal();
 
-        spanClose.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
         document.getElementById('BebidaModal').innerHTML = "";
         var data = `
             <div class="row">
@@ -987,15 +989,15 @@ class PaginaGestionBebidas extends Pagina {
                     </div>
                     <div class="form-group">
                         <label>Existencias: </label>
-                        <input type="text" id="existenciasBebida" tabindex="1" class="form-control" value="">
+                        <input type="number" id="existenciasBebida" tabindex="1" class="form-control" value="">
                     </div>
                     <div class="form-group">
                         <label>Calorias: </label>
-                        <input type="text" id="caloriasBebida" tabindex="1" class="form-control" value="">
+                        <input type="number" id="caloriasBebida" tabindex="1" class="form-control" value="">
                     </div>
                     <div class="form-group">
                         <label>Precio: </label>
-                        <input type="text" id="precioBebida" tabindex="1" class="form-control" value="">
+                        <input type="number" id="precioBebida" tabindex="1" class="form-control" value="">
                     </div>
                     <div class="form-group">
                         <label>¿Es Alcoholica? : </label>
@@ -1006,7 +1008,7 @@ class PaginaGestionBebidas extends Pagina {
                     </div>
                     <div class="form-group" id=divGradosBebida>
                         <label>Grados Alcohol: </label>
-                        <input type="text" id="gradosBebida" tabindex="1" class="form-control" value="">
+                        <input type="number" id="gradosBebida" tabindex="1" class="form-control" value="">
                     </div>
                     <div class="form-group">
                         <div class="row">
@@ -1031,28 +1033,16 @@ class PaginaGestionBebidas extends Pagina {
 
         esAlcoholicaID.addEventListener("change", checkBebidaAlcoholica);
 
-        crearElemento("button", "Añadir", "divButtonAñadirBebida", "form-control btn btn-primary", "ButtonAñadirBebida").addEventListener("click", () => this.bebidasClient.postBebida().then(data => this.pintarPaginaHTML(data)));
-
-        modal.style.display = "block";
+        crearElemento("button", "Añadir", "divButtonAñadirBebida", "form-control btn btn-primary", "ButtonAñadirBebida").addEventListener("click", () => this.bebidasClient.postBebida().then(data => this.gestionPromesas(data, "Bebida Añadida")));
     }
 
     eliminarBebida(index) {
-        this.bebidasClient.deleteBebida(this.bebidas[index]._id).then(data => this.pintarPaginaHTML(data));
+        this.bebidasClient.deleteBebida(this.bebidas[index]._id).then(data => this.gestionPromesas(data, "Bebida Eliminada"));
     }
 
     editarBebida(index) {
-        var modal = document.getElementById("myModal");
-        var spanClose = document.getElementsByClassName("close")[0];
+        this.mostrarModal();
 
-        spanClose.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
         document.getElementById('BebidaModal').innerHTML = "";
         var data = `
             <div class="row">
@@ -1063,15 +1053,15 @@ class PaginaGestionBebidas extends Pagina {
                     </div>
                     <div class="form-group">
                         <label>Existencias: </label>
-                        <input type="text" id="editarExistencias" tabindex="1" class="form-control" value=${this.bebidas[index].existencias}>
+                        <input type="number" id="editarExistencias" tabindex="1" class="form-control" value=${this.bebidas[index].existencias}>
                     </div>
                     <div class="form-group">
                         <label>Calorias: </label>
-                        <input type="text" id="editarCalorias" tabindex="1" class="form-control" value=${this.bebidas[index].calorias}>
+                        <input type="number" id="editarCalorias" tabindex="1" class="form-control" value=${this.bebidas[index].calorias}>
                     </div>
                     <div class="form-group">
                         <label>Precio: </label>
-                        <input type="text" id="editarPrecio" tabindex="1" class="form-control" value=${this.bebidas[index].precio}>
+                        <input type="number" id="editarPrecio" tabindex="1" class="form-control" value=${this.bebidas[index].precio}>
                     </div>
                     <div class="form-group">
                         <label>¿Es Alcoholica? : </label>
@@ -1082,7 +1072,7 @@ class PaginaGestionBebidas extends Pagina {
                     </div>
                     <div class="form-group" id=divEditarGradosBebida>
                         <label>Grados Alcohol: </label>
-                        <input type="text" id="editarGradosBebida" tabindex="1" class="form-control" value=${this.bebidas[index].grados}>
+                        <input type="number" id="editarGradosBebida" tabindex="1" class="form-control" value=${this.bebidas[index].grados}>
                     </div>
                     <div class="form-group">
                         <div class="row">
@@ -1110,9 +1100,39 @@ class PaginaGestionBebidas extends Pagina {
 
         esAlcoholicaID.addEventListener("change", checkBebidaAlcoholica);
 
-        crearElemento("button", "Guardar", "divButtonEditarBebida", "form-control btn btn-primary", "ButtonEditarBebida").addEventListener("click", () => this.bebidasClient.updateBebida(this.bebidas[index]).then(data => this.pintarPaginaHTML(data)));
+        crearElemento("button", "Guardar", "divButtonEditarBebida", "form-control btn btn-primary", "ButtonEditarBebida").addEventListener("click", () => this.bebidasClient.updateBebida(this.bebidas[index]).then(data => this.gestionPromesas(data, "Bebida Editada")));
+    }
 
+    mostrarModal() {
+        var modal = document.getElementById("myModal");
+        var spanClose = document.getElementsByClassName("close")[0];
+
+        spanClose.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
         modal.style.display = "block";
+    }
+
+    gestionPromesas(data, msg) {
+        mostrarPantallaDeCarga(true);
+        var x = document.getElementById("snackbar");
+        if (data.status == 200) {
+            x.innerHTML = msg;
+        } else {
+            x.innerHTML = "Error: datos incorrectos, intente mas tarde.";
+        }
+        x.className = "show";
+        window.setTimeout(() => {
+            if (data.status == 200)
+                this.pintarPaginaHTML(data);
+            x.className = x.className.replace("show", "");
+        }, 1500);
     }
 }
 
@@ -1311,14 +1331,20 @@ class LoginClient {
         var user = document.getElementById("username").value;
         var pass = document.getElementById("password").value;
 
-        var loginObj = {"username": user, "password": pass};
+        var loginObj = {
+            "username": user,
+            "password": pass
+        };
 
         return this.apiClient.post(url, loginObj);
     }
 
     getLoginInico(login) {
         var url = this.urlBase + "/users/login";
-        var loginObj = {"username": login.username, "password": login.password};
+        var loginObj = {
+            "username": login.username,
+            "password": login.password
+        };
         return this.apiClient.post(url, loginObj);
     }
 }
@@ -1366,7 +1392,9 @@ class UsuarioClient {
 
     deleteUsuario(id) {
         var url = this.urlBase + "/" + id;
-        var pass = {"password": document.getElementById("confirmarContraseña").value};
+        var pass = {
+            "password": document.getElementById("confirmarContraseña").value
+        };
 
         return this.apiClient.deleteConBody(url, pass);
     }

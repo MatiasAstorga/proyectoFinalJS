@@ -57,8 +57,9 @@
 
 .likeTitle{
     font-size: 25px;
+    padding: 5px;
     color: white;
-    /*background: #ff9c33;*/
+    background: #ad3c3c;
     font-style: italic;
     font-variant: small-caps;
     -webkit-font-smoothing: antialiased;
@@ -69,7 +70,7 @@
 }
 
 .tbackground{
-    background: #ff9c33;
+    background: rgba(134, 171, 150, 0.91);
     width: 85%;
     margin: auto;
 }
@@ -104,7 +105,7 @@ a img:hover{
 #modificarusuarioDiv{
     max-width: 400px;
     margin: auto;
-    background: #ff9c33;
+    background: rgba(134, 171, 150, 0.91);
     padding: 10px;
 }
 
