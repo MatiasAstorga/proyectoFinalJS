@@ -1,7 +1,7 @@
 #header{
     height: auto;
     background: #4CAF50;
-    display: none;
+    display: block;
 }
 
 #headerAcciones{
@@ -27,7 +27,7 @@
 #footer{
     height: auto;
     background: #4CAF50;
-    display: none;
+    display: block;
 }
 
 #login{

@@ -27,38 +27,49 @@ class Pagina {
             </div>
             <div id="snackbar"></div>`;
 
-        var header = new Header(this.navController);
-        var footer = new Footer(this.navController);
+        
+
     }
 
-    mostrarHeader() {
-        this.header ? document.getElementById("header").style.display = "block" : document.getElementById("header").style.display = "none";
+    mostrarHeader(data) {
+        if (this.header){
+            new Header(this.navController, data);
+        }
+        else{
+            document.getElementById("header").innerHTML = "";
+        }
     }
 
-    mostrarFooter() {
-        this.footer ? document.getElementById("footer").style.display = "block" : document.getElementById("footer").style.display = "none";
+    mostrarFooter(data) {
+        if (this.footer){
+            new Footer(this.navController, data);
+        }
+        else{
+            document.getElementById("footer").innerHTML = "";
+        }
     }
 
     pintarUrl(nuevaURL) {
         window.history.pushState("", "", nuevaURL);
     }
 
-    pintarOtros() {
-        this.mostrarHeader();
-        this.mostrarFooter();
+    pintarOtros(data = null) {
+        //NOTA: esta implementado el envio de un parametro data (desde cada pagina) que envia el html a pintar del header. No se usa pues el header es el mismo para todas las paginas.
+        this.mostrarHeader(data);
+        this.mostrarFooter(data);
         this.pintarUrl(this.url);
     }
 }
 
 class Header {
-    constructor(navController) {
-        this.pintarPaginaHTML();
+    constructor(navController, data) {
+        this.pintarPaginaHTML(data);
         this.navController = navController;
     }
 
-    pintarPaginaHTML() {
+    pintarPaginaHTML(datos) {
+        //NOTA: ahora el header puede ser pintada por cada pagina, para ello, se envia el parametro "datos" con el html que desea ser pintado. En este caso, como el header es el mismo para todas las paginas, no se hace uso de este parametro, pero esta listo para ser usado.
         var data = `
-        
             <a class="dropbtn" id=homeIcon><img src=resources/homeIcon.png class=imgPos></img></a>
                  
             <div class="dropdown">

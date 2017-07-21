@@ -311,7 +311,7 @@ class PaginaCrearUsuario extends Pagina {
 
 class PaginaModificarUsuario extends Pagina {
     constructor(navController) {
-        super("modificarUsuario", header, footer, navController);
+        super("modificarUsuario", true, true, navController);
         this.usuarioClient = new UsuarioClient();
         this.login = new Login();
     }
