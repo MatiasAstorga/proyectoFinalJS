@@ -97,8 +97,9 @@ a img:hover{
 }
 
 .butonRigth{
+    font-size: 17px;
     float: right;
-    margin: 15px;
+    margin-bottom: 15px;
     padding: 10px;
 }
 
@@ -109,8 +110,13 @@ a img:hover{
     padding: 10px;
 }
 
-.borrarComida, .borrarBebida{
+.verDetallesBebida, .verDetallesComida, .editarComida, .editarBebida{
     margin-right: 8px;
+    margin-bottom: 4px;
+}
+
+.borrarComida, .borrarBebida{
+    margin-bottom: 4px;
 }
 
 .dashboard{
@@ -194,6 +200,7 @@ a img:hover{
     float: right;
     font-size: 28px;
     font-weight: bold;
+    opacity: 0.8;
 }
 
 .close:hover,

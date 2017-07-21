@@ -576,7 +576,7 @@ class PaginaModificarUsuario extends Pagina {
 
         document.getElementById('main').innerHTML = data;
 
-        crearElemento("button", "Eliminar Cuenta", "modificarPerfilHeader", "butonRigth btn-default", "eliminarCuentaBtn").addEventListener("click", () => this.eliminarCuenta());
+        crearElemento("button", "Eliminar Cuenta", "modificarPerfilHeader", "butonRigth btn btn-default", "eliminarCuentaBtn").addEventListener("click", () => this.eliminarCuenta());
         crearElemento("button", "Actualizar", "divButtonActualizarPerfil", "form-control btn btn-primary", "ButtonActualizarPerfil").addEventListener("click", () => this.modalContraseña());
 
         crearElemento("button", "Confirmar", "divButtonConfirmarActualizarPerfil", "form-control btn btn-primary buttonMTop", "ButtonConfirmarActualizarPerfil").addEventListener("click", () => this.usuarioClient.updateUsuario(main.user.user).then(data => {
@@ -761,11 +761,12 @@ class PaginaGestionComidas extends Pagina {
     }
 
     pintarAcciones() {
-        crearElemento("button", "Nueva Comida", "nuevaComidaHeader", "butonRigth btn-default", "nuevaComidaBtn").addEventListener("click", () => this.añadirComida());
+        crearElemento("button", "Nueva Comida", "nuevaComidaHeader", "butonRigth btn btn-default", "nuevaComidaBtn").addEventListener("click", () => this.añadirComida());
 
         document.querySelectorAll("tr>th:last-child").forEach((elemento) => {
-            elemento.insertBefore(crearElemento("button", "Borrar", undefined, "btn btn-primary borrarComida", "borrarComida"), null);
+            elemento.insertBefore(crearElemento("button", "Ver", undefined, "btn btn-primary verDetallesComida", "verDetallesComida"), null);
             elemento.insertBefore(crearElemento("button", "Editar", undefined, "btn btn-primary editarComida", "editarComida"), null);
+            elemento.insertBefore(crearElemento("button", "Borrar", undefined, "btn btn-primary borrarComida", "borrarComida"), null);
         })
 
         document.querySelectorAll(".borrarComida").forEach((elemento, index) => {
@@ -774,6 +775,10 @@ class PaginaGestionComidas extends Pagina {
 
         document.querySelectorAll(".editarComida").forEach((elemento, index) => {
             elemento.addEventListener("click", () => this.editarComida(index));
+        })
+
+        document.querySelectorAll(".verDetallesComida").forEach((elemento, index) => {
+            elemento.addEventListener("click", () => this.verDetallesComida(index));
         })
     }
 
@@ -857,6 +862,43 @@ class PaginaGestionComidas extends Pagina {
 
         document.getElementById('ComidaModal').innerHTML = data;
         crearElemento("button", "Guardar", "divButtonEditarComida", "form-control btn btn-primary", "ButtonEditarComida").addEventListener("click", () => this.comidaClient.updateComida(this.comidas[index]).then(data => this.gestionPromesas(data, "Comida Editada")));
+    }
+
+    verDetallesComida(index) {
+        this.mostrarModal();
+
+        document.getElementById('ComidaModal').innerHTML = "";
+        var data = `
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="form-group">
+                        <label>ID: </label>
+                        <input disabled type="text" tabindex="1" class="form-control" value=${this.comidas[index]._id}>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre: </label>
+                        <input disabled type="text" tabindex="1" class="form-control" value=${this.comidas[index].nombre}>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo: </label>
+                        <input disabled type="text" tabindex="1" class="form-control" value=${this.comidas[index].tipo}>
+                    </div>
+                    <div class="form-group">
+                        <label>Existencias: </label>
+                        <input disabled type="number" tabindex="1" class="form-control" value=${this.comidas[index].existencias}>
+                    </div>
+                    <div class="form-group">
+                        <label>Calorias: </label>
+                        <input disabled type="number" tabindex="1" class="form-control" value=${this.comidas[index].calorias}>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio: </label>
+                        <input disabled type="number" tabindex="1" class="form-control" value=${this.comidas[index].precio}>
+                    </div>
+                </div>
+            </div>`;
+
+        document.getElementById('ComidaModal').innerHTML = data;
     }
 
     mostrarModal() {
@@ -960,11 +1002,12 @@ class PaginaGestionBebidas extends Pagina {
     }
 
     pintarAcciones() {
-        crearElemento("button", "Nueva Bebida", "nuevaBebidaHeader", "butonRigth btn-default", "nuevaBebidaBtn").addEventListener("click", () => this.añadirBebida());
+        crearElemento("button", "Nueva Bebida", "nuevaBebidaHeader", "butonRigth btn btn-default", "nuevaBebidaBtn").addEventListener("click", () => this.añadirBebida());
 
         document.querySelectorAll("tr>th:last-child").forEach((elemento) => {
-            elemento.insertBefore(crearElemento("button", "Borrar", undefined, "btn btn-primary borrarBebida", "borrarBebida"), null);
+            elemento.insertBefore(crearElemento("button", "Ver", undefined, "btn btn-primary verDetallesBebida", "verDetallesBebida"), null);
             elemento.insertBefore(crearElemento("button", "Editar", undefined, "btn btn-primary editarBebida", "editarBebida"), null);
+            elemento.insertBefore(crearElemento("button", "Borrar", undefined, "btn btn-primary borrarBebida", "borrarBebida"), null);
         })
 
         document.querySelectorAll(".borrarBebida").forEach((elemento, index) => {
@@ -973,6 +1016,10 @@ class PaginaGestionBebidas extends Pagina {
 
         document.querySelectorAll(".editarBebida").forEach((elemento, index) => {
             elemento.addEventListener("click", () => this.editarBebida(index));
+        })
+
+        document.querySelectorAll(".verDetallesBebida").forEach((elemento, index) => {
+            elemento.addEventListener("click", () => this.verDetallesBebida(index));
         })
     }
 
@@ -1101,6 +1148,50 @@ class PaginaGestionBebidas extends Pagina {
         esAlcoholicaID.addEventListener("change", checkBebidaAlcoholica);
 
         crearElemento("button", "Guardar", "divButtonEditarBebida", "form-control btn btn-primary", "ButtonEditarBebida").addEventListener("click", () => this.bebidasClient.updateBebida(this.bebidas[index]).then(data => this.gestionPromesas(data, "Bebida Editada")));
+    }
+
+    verDetallesBebida(index) {
+        this.mostrarModal();
+
+        document.getElementById('BebidaModal').innerHTML = "";
+        var data = `
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="form-group">
+                        <label>ID: </label>
+                        <input disabled type="text" tabindex="1" class="form-control" value=${this.bebidas[index]._id}>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre: </label>
+                        <input disabled type="text" tabindex="1" class="form-control" value=${this.bebidas[index].nombre}>
+                    </div>
+                    <div class="form-group">
+                        <label>Existencias: </label>
+                        <input disabled type="number" tabindex="1" class="form-control" value=${this.bebidas[index].existencias}>
+                    </div>
+                    <div class="form-group">
+                        <label>Calorias: </label>
+                        <input disabled type="number" tabindex="1" class="form-control" value=${this.bebidas[index].calorias}>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio: </label>
+                        <input disabled type="number" tabindex="1" class="form-control" value=${this.bebidas[index].precio}>
+                    </div>
+                    <div class="form-group">
+                        <label>¿Es Alcoholica? : </label>
+                        <select disabled id="editarEsAlcoholicaBebida">
+                            <option value=true>Si</option>
+                            <option value=false>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id=divEditarGradosBebida>
+                        <label>Grados Alcohol: </label>
+                        <input disabled type="number" tabindex="1" class="form-control" value=${this.bebidas[index].grados}>
+                    </div>
+                </div>
+            </div>`;
+
+        document.getElementById('BebidaModal').innerHTML = data;
     }
 
     mostrarModal() {
